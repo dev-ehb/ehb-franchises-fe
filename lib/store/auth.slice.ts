@@ -6,16 +6,25 @@ interface AuthState {
   role: FranchiseLevel | null;
   franchise_id: string | null;
   access_token: string | null;
+  /**
+   * True once the client has read sessionStorage and populated the slice.
+   * Server renders see hydrated:false so layouts can defer auth-gated
+   * decisions and avoid React hydration mismatches.
+   */
+  hydrated: boolean;
 }
 
-const read = (k: string) =>
-  typeof window !== 'undefined' ? sessionStorage.getItem(k) : null;
-
+// IMPORTANT: never touch sessionStorage in this initial state. SSR runs this
+// once with no window object, then the client first render runs it again
+// during hydration. If the two return different shapes (role:null on the
+// server, role:"sub" on the client) React throws the "Hydration failed"
+// error from the runtime overlay.
 const initialState: AuthState = {
   user: null,
-  role: (read('franchises_role') as FranchiseLevel | null) ?? null,
-  franchise_id: read('franchises_fid'),
-  access_token: read('franchises_token'),
+  role: null,
+  franchise_id: null,
+  access_token: null,
+  hydrated: false,
 };
 
 const authSlice = createSlice({
@@ -32,6 +41,7 @@ const authSlice = createSlice({
       }>,
     ) {
       Object.assign(state, action.payload);
+      state.hydrated = true;
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('franchises_token', action.payload.access_token);
         sessionStorage.setItem('franchises_role', action.payload.role);
@@ -43,14 +53,32 @@ const authSlice = createSlice({
       state.role = null;
       state.franchise_id = null;
       state.access_token = null;
+      state.hydrated = true;
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('franchises_token');
         sessionStorage.removeItem('franchises_role');
         sessionStorage.removeItem('franchises_fid');
       }
     },
+    /**
+     * Client-only hydration from sessionStorage. Called once from a useEffect
+     * after mount - keeps SSR output deterministic while still recovering the
+     * session on page reload.
+     */
+    hydrateFromStorage(state) {
+      if (typeof window === 'undefined') return;
+      const token = sessionStorage.getItem('franchises_token');
+      const role = sessionStorage.getItem('franchises_role') as FranchiseLevel | null;
+      const fid = sessionStorage.getItem('franchises_fid');
+      if (token && role && fid) {
+        state.access_token = token;
+        state.role = role;
+        state.franchise_id = fid;
+      }
+      state.hydrated = true;
+    },
   },
 });
 
-export const { setCredentials, clearCredentials } = authSlice.actions;
+export const { setCredentials, clearCredentials, hydrateFromStorage } = authSlice.actions;
 export default authSlice.reducer;

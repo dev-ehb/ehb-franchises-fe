@@ -36,10 +36,14 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Sub Franchises', href: '/corporate/subs', icon: Store, roles: ['corporate'] },
   { label: 'Regional Map', href: '/corporate/map', icon: Map, roles: ['corporate'] },
   { label: 'Reports', href: '/corporate/reports', icon: BarChart3, roles: ['corporate'] },
+  // After the Corporate > Master > Sub hierarchy flip, Master is the middle
+  // layer — it owns Subs directly, not Corporates. Old labels ("Corporates",
+  // "Multi-Region Map", "Enterprise KPIs") were renamed accordingly so the
+  // nav matches what the user actually sees on each page.
   { label: 'Overview', href: '/master', icon: LayoutDashboard, roles: ['master'] },
-  { label: 'Corporates', href: '/master/corporates', icon: Store, roles: ['master'] },
-  { label: 'Multi-Region Map', href: '/master/map', icon: Map, roles: ['master'] },
-  { label: 'Enterprise KPIs', href: '/master/kpis', icon: BarChart3, roles: ['master'] },
+  { label: 'Sub Franchises', href: '/master/subs', icon: Store, roles: ['master'] },
+  { label: 'Territory Map', href: '/master/map', icon: Map, roles: ['master'] },
+  { label: 'Reports', href: '/master/reports', icon: BarChart3, roles: ['master'] },
 ];
 
 export function Sidebar({ role }: { role: FranchiseLevel }) {
