@@ -11,6 +11,7 @@ import {
   BarChart3,
   PanelLeftClose,
   PanelLeftOpen,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FranchiseLevel } from '@/types/franchises.types';
@@ -46,7 +47,13 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Reports', href: '/master/reports', icon: BarChart3, roles: ['master'] },
 ];
 
-export function Sidebar({ role }: { role: FranchiseLevel }) {
+interface SidebarProps {
+  role: FranchiseLevel;
+  open?: boolean;
+  onClose?: () => void;
+}
+
+export function Sidebar({ role, open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const items = NAV_ITEMS.filter((i) => i.roles.includes(role));
@@ -54,12 +61,26 @@ export function Sidebar({ role }: { role: FranchiseLevel }) {
   return (
     <aside
       className={cn(
-        'flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-200',
+        'flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-300',
+        /* mobile: fixed drawer */
+        'fixed inset-y-0 left-0 z-50',
+        open ? 'translate-x-0' : '-translate-x-full',
+        /* desktop: static, always visible */
+        'md:relative md:translate-x-0',
         collapsed ? 'w-[60px]' : 'w-[220px]',
       )}
     >
-      <div className="flex h-14 items-center gap-2 border-b border-gray-200 px-4">
+      <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4">
         {!collapsed && <span className="text-sm font-semibold text-gray-900">EHB Franchises</span>}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden flex items-center justify-center rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+            aria-label="Close sidebar"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
       <nav className="flex-1 space-y-1 p-2">
         {items.map((item) => {
@@ -69,6 +90,7 @@ export function Sidebar({ role }: { role: FranchiseLevel }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
                 active

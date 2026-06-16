@@ -119,7 +119,7 @@ export default function SubDashboardPage() {
         <ComplianceChecklist checks={checks} />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
+      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-card">
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
           <h2 className="text-sm font-semibold text-gray-700">My stores</h2>
           <span className="text-xs text-gray-500">{stores.length} active</span>
@@ -129,12 +129,12 @@ export default function SubDashboardPage() {
             No stores yet. New GoSellr sellers in your territory show up here automatically.
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[480px] text-sm">
             <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
               <tr>
                 <th className="px-4 py-2 font-medium">Store</th>
                 <th className="px-4 py-2 font-medium">Source</th>
-                <th className="px-4 py-2 font-medium">Lat, Lng</th>
+                <th className="hidden sm:table-cell px-4 py-2 font-medium">Lat, Lng</th>
                 <th className="px-4 py-2 font-medium">Linked</th>
               </tr>
             </thead>
@@ -148,7 +148,7 @@ export default function SubDashboardPage() {
                     <div className="font-mono text-[11px] text-gray-400">{s.store_id}</div>
                   </td>
                   <td className="px-4 py-2 text-gray-600">{s.source_platform}</td>
-                  <td className="px-4 py-2 text-gray-600">
+                  <td className="hidden sm:table-cell px-4 py-2 text-gray-600">
                     {s.store_location.coordinates[1].toFixed(4)},{' '}
                     {s.store_location.coordinates[0].toFixed(4)}
                   </td>

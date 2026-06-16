@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
@@ -19,8 +19,20 @@ import { hydrateFromStorage } from '@/lib/store/auth.slice';
  */
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useAppDispatch();
   const auth = useAppSelector((s) => s.auth);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Auto-close sidebar on desktop resize
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth >= 768) setSidebarOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Close sidebar on route change
+  useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
   // Re-populate auth from sessionStorage exactly once after the first paint.
   useEffect(() => {
@@ -53,10 +65,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar role={auth.role} />
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <Sidebar role={auth.role} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar role={auth.role} email={auth.user?.email} />
-        <main className="relative flex-1 overflow-y-auto bg-gray-50 p-6">{children}</main>
+        <Topbar role={auth.role} email={auth.user?.email} onMenuClick={() => setSidebarOpen((o) => !o)} />
+        <main className="relative flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, ChevronDown, LogOut, Settings, UserCircle } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Menu, Settings, UserCircle } from 'lucide-react';
 import { getLevelLabel } from '@/lib/utils';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { clearCredentials } from '@/lib/store/auth.slice';
@@ -16,7 +16,7 @@ import type { FranchiseLevel } from '@/types/franchises.types';
  * out). Click-outside + Escape close it. Logout clears credentials (which
  * also wipes sessionStorage) and routes to /login.
  */
-export function Topbar({ role, email }: { role: FranchiseLevel; email?: string }) {
+export function Topbar({ role, email, onMenuClick }: { role: FranchiseLevel; email?: string; onMenuClick?: () => void }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
@@ -47,8 +47,19 @@ export function Topbar({ role, email }: { role: FranchiseLevel; email?: string }
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-gray-200 bg-white px-6">
-      <div className="text-sm font-medium text-gray-700">{getLevelLabel(role)} Dashboard</div>
+    <header className="flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6">
+      <div className="flex items-center gap-3">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="md:hidden flex items-center justify-center rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
+        <div className="text-sm font-medium text-gray-700">{getLevelLabel(role)} Dashboard</div>
+      </div>
       <div className="flex items-center gap-4 text-gray-500">
         <button aria-label="Notifications" className="hover:text-gray-800">
           <Bell className="h-5 w-5" />
