@@ -30,8 +30,8 @@ export default function MasterTerritoryMapPage() {
         );
         const threshold = (subs[i].radius_km + subs[j].radius_km) / 2;
         if (d < threshold) {
-          flagged.add(subs[i]._id);
-          flagged.add(subs[j]._id);
+          flagged.add(subs[i].id);
+          flagged.add(subs[j].id);
         }
       }
     }
@@ -57,8 +57,8 @@ export default function MasterTerritoryMapPage() {
   const circles: MapCircle[] = child_subs.map((s) => ({
     center: [s.center.coordinates[1], s.center.coordinates[0]],
     radiusKm: s.radius_km,
-    color: conflicts.has(s._id) ? '#dc2626' : '#2563eb',
-    fillColor: conflicts.has(s._id) ? '#ef4444' : '#3b82f6',
+    color: conflicts.has(s.id) ? '#dc2626' : '#2563eb',
+    fillColor: conflicts.has(s.id) ? '#ef4444' : '#3b82f6',
     label: `${s.display_name ?? s.name} • ${s.store_count} stores`,
   }));
   const markers: MapMarker[] = [

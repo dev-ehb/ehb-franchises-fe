@@ -140,7 +140,7 @@ export default function SubDashboardPage() {
             </thead>
             <tbody>
               {stores.map((s) => (
-                <tr key={s._id} className="border-b border-gray-100 last:border-0 align-top">
+                <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
                   <td className="px-4 py-2">
                     <div className="text-sm font-medium text-gray-800">
                       {s.store_name ?? 'Unnamed store'}

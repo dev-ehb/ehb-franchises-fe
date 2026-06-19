@@ -148,11 +148,11 @@ function BrandStandardisationMatrix({
           </thead>
           <tbody>
             {masters.map((m) => {
-              const subs = subsByParent[m._id] ?? [];
+              const subs = subsByParent[m.id] ?? [];
               const nonStandard = subs.filter((s) => s.radius_km !== STANDARD_RADIUS_KM).length;
               const totalStores = subs.reduce((sum, s) => sum + s.store_count, 0);
               return (
-                <tr key={m._id} className="border-b border-gray-100 last:border-0">
+                <tr key={m.id} className="border-b border-gray-100 last:border-0">
                   <td className="px-4 py-2 text-gray-800">{m.name}</td>
                   <td className="px-4 py-2 text-gray-600">{subs.length}</td>
                   <td className="px-4 py-2 text-gray-600">{totalStores}</td>

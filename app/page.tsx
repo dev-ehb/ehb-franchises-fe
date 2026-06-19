@@ -162,9 +162,9 @@ function FranchiseGroup({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {franchises.map((f) => (
             <FranchiseCard
-              key={f._id}
+              key={f.id}
               franchise={f}
-              hasPendingRequest={pendingIds.has(f._id)}
+              hasPendingRequest={pendingIds.has(f.id)}
             />
           ))}
         </div>
@@ -186,7 +186,7 @@ function FranchiseCard({
   const owned = Boolean(franchise.owner_name || franchise.owner_email);
   return (
     <Link
-      href={`/franchises/${franchise._id}`}
+      href={`/franchises/${franchise.id}`}
       className="block rounded-xl border border-gray-200 bg-white p-4 shadow-card transition-shadow hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-2">

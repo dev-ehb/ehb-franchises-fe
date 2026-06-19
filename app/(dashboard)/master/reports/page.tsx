@@ -253,7 +253,7 @@ function UtilisationTable({
                 Math.round((s.store_count / SUB_MAX_STORES) * 100),
               );
               return (
-                <tr key={s._id} className="border-b border-gray-100 last:border-0">
+                <tr key={s.id} className="border-b border-gray-100 last:border-0">
                   <td className="px-4 py-2">
                     <div className="text-sm font-medium text-gray-800">
                       {s.display_name ?? s.name}

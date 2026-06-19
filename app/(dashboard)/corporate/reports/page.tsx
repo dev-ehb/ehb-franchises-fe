@@ -231,7 +231,7 @@ function PerMasterTable({
 }) {
   const rows = masters
     .map((m) => {
-      const subs = subsByMaster[m._id] ?? [];
+      const subs = subsByMaster[m.id] ?? [];
       const stores = subs.reduce((sum, s) => sum + s.store_count, 0);
       const capacity = subs.length * SUB_MAX_STORES;
       const util = capacity > 0 ? Math.round((stores / capacity) * 100) : 0;
@@ -266,10 +266,10 @@ function PerMasterTable({
           </thead>
           <tbody>
             {rows.map(({ master, subs, stores, capacity, util }) => (
-              <tr key={master._id} className="border-b border-gray-100 last:border-0 align-top">
+              <tr key={master.id} className="border-b border-gray-100 last:border-0 align-top">
                 <td className="px-4 py-2">
                   <Link
-                    href={`/franchises/${master._id}`}
+                    href={`/franchises/${master.id}`}
                     className="block text-sm font-medium text-gray-800 hover:text-primary-700"
                   >
                     {master.display_name ?? master.name}

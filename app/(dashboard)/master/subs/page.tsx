@@ -96,10 +96,10 @@ export default function MasterSubsPage() {
                   Math.round((s.store_count / SUB_MAX_STORES) * 100),
                 );
                 return (
-                  <tr key={s._id} className="border-b border-gray-100 last:border-0 align-top">
+                  <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
                     <td className="px-4 py-2">
                       <Link
-                        href={`/franchises/${s._id}`}
+                        href={`/franchises/${s.id}`}
                         className="block text-sm font-medium text-gray-800 hover:text-primary-700"
                       >
                         {s.display_name ?? s.name}

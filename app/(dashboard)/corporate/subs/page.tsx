@@ -73,7 +73,7 @@ export default function CorporateSubsPage() {
       ) : (
         <div className="space-y-4">
           {child_masters.map((m) => {
-            const subs = subsByMaster[m._id] ?? [];
+            const subs = subsByMaster[m.id] ?? [];
             const visible = needle
               ? subs.filter(
                   (s) =>
@@ -90,14 +90,14 @@ export default function CorporateSubsPage() {
 
             return (
               <div
-                key={m._id}
+                key={m.id}
                 className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-amber-50/40 px-4 py-2.5">
                   <div className="flex items-center gap-2 min-w-0">
                     <Network className="h-4 w-4 shrink-0 text-amber-700" />
                     <Link
-                      href={`/franchises/${m._id}`}
+                      href={`/franchises/${m.id}`}
                       className="truncate text-sm font-semibold text-gray-800 hover:text-primary-700"
                     >
                       {m.display_name ?? m.name}
@@ -139,10 +139,10 @@ export default function CorporateSubsPage() {
                           Math.round((s.store_count / SUB_MAX_STORES) * 100),
                         );
                         return (
-                          <tr key={s._id} className="border-b border-gray-100 last:border-0 align-top">
+                          <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
                             <td className="px-4 py-2">
                               <Link
-                                href={`/franchises/${s._id}`}
+                                href={`/franchises/${s.id}`}
                                 className="block text-sm font-medium text-gray-800 hover:text-primary-700"
                               >
                                 {s.display_name ?? s.name}

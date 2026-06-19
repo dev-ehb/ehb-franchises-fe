@@ -35,8 +35,8 @@ export default function MasterDashboardPage() {
         );
         const threshold = (subs[i].radius_km + subs[j].radius_km) / 2;
         if (d < threshold) {
-          flagged.add(subs[i]._id);
-          flagged.add(subs[j]._id);
+          flagged.add(subs[i].id);
+          flagged.add(subs[j].id);
         }
       }
     }
@@ -65,8 +65,8 @@ export default function MasterDashboardPage() {
   const circles: MapCircle[] = child_subs.map((s) => ({
     center: [s.center.coordinates[1], s.center.coordinates[0]],
     radiusKm: s.radius_km,
-    color: conflicts.has(s._id) ? '#dc2626' : '#2563eb',
-    fillColor: conflicts.has(s._id) ? '#ef4444' : '#3b82f6',
+    color: conflicts.has(s.id) ? '#dc2626' : '#2563eb',
+    fillColor: conflicts.has(s.id) ? '#ef4444' : '#3b82f6',
     label: `${s.display_name ?? s.name} • ${s.store_count} stores`,
   }));
   const selfMarker = {
@@ -149,10 +149,10 @@ function SubsTable({ subs, conflicts }: { subs: Franchise[]; conflicts: Set<stri
           </thead>
           <tbody>
             {subs.map((s) => (
-              <tr key={s._id} className="border-b border-gray-100 last:border-0">
+              <tr key={s.id} className="border-b border-gray-100 last:border-0">
                 <td className="px-4 py-2 text-gray-800">
                   {s.name}
-                  {conflicts.has(s._id) && (
+                  {conflicts.has(s.id) && (
                     <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">
                       conflict
                     </span>

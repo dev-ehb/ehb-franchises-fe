@@ -196,7 +196,7 @@ export default function PublicFranchiseDetailPage() {
             available={is_available_for_purchase}
             hasPendingRequest={has_pending_request}
             buyer={buyer}
-            franchiseId={franchise._id}
+            franchiseId={franchise.id}
             franchiseCode={franchise.code}
             franchiseName={franchise.display_name ?? franchise.name}
           />
@@ -265,7 +265,7 @@ export default function PublicFranchiseDetailPage() {
             <div className="flex flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-sm shadow-card">
               <FranchiseChip franchise={franchise} self />
               {parents.map((p) => (
-                <span key={p._id} className="flex items-center gap-2">
+                <span key={p.id} className="flex items-center gap-2">
                   <ChevronRight className="h-3 w-3 text-gray-400" />
                   <FranchiseChip franchise={p} />
                 </span>
@@ -299,7 +299,7 @@ export default function PublicFranchiseDetailPage() {
           >
             <StoreTable
               stores={stores}
-              franchiseLookup={new Map(child_subs.map((s) => [s._id, s.display_name ?? s.name]))}
+              franchiseLookup={new Map(child_subs.map((s) => [s.id, s.display_name ?? s.name]))}
             />
           </Section>
         )}
@@ -599,7 +599,7 @@ function Field({
 function FranchiseChip({ franchise, self = false }: { franchise: Franchise; self?: boolean }) {
   return (
     <Link
-      href={`/franchises/${franchise._id}`}
+      href={`/franchises/${franchise.id}`}
       className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${
         self ? 'border-primary-300 bg-primary-50 text-primary-800' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
       }`}
@@ -629,8 +629,8 @@ function FranchiseGrid({ franchises }: { franchises: Franchise[] }) {
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {franchises.map((f) => (
         <Link
-          key={f._id}
-          href={`/franchises/${f._id}`}
+          key={f.id}
+          href={`/franchises/${f.id}`}
           className="block rounded-xl border border-gray-200 bg-white p-3 shadow-card hover:shadow-md"
         >
           <div className="flex items-start justify-between gap-2">
@@ -683,7 +683,7 @@ function StoreTable({
         </thead>
         <tbody>
           {stores.map((s) => (
-            <tr key={s._id} className="border-b border-gray-100 last:border-0 align-top">
+            <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
               <td className="px-4 py-2">
                 <div className="flex items-start gap-2">
                   <Store className="mt-0.5 h-3 w-3 shrink-0 text-gray-400" />
