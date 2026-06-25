@@ -41,9 +41,47 @@ export const franchisesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Franchise', 'Dashboard'],
     }),
+
+    // ── PSS approvals (territory-routed franchise reviews) ──────────────────
+    getPssApprovals: build.query<PssApprovalsList, void>({
+      query: () => '/pss-approvals',
+      providesTags: ['PssApproval'],
+    }),
+    getPssApprovalDetail: build.query<PssReviewDetail, string>({
+      query: (id) => `/pss-approvals/${id}`,
+      providesTags: ['PssApproval'],
+    }),
+    decidePssApproval: build.mutation<unknown, { id: string; body: Record<string, unknown> }>({
+      query: ({ id, body }) => ({ url: `/pss-approvals/${id}/decide`, method: 'POST', body }),
+      invalidatesTags: ['PssApproval'],
+    }),
   }),
   overrideExisting: false,
 });
+
+export interface PssReviewItem {
+  id: string;
+  sq_request_id: string;
+  franchise_id: string;
+  entity_id: string;
+  entity_type: string;
+  platform_id: string;
+  status: string;
+  sq_level_calculated: number | null;
+  criteria_met: number;
+  total_criteria: number;
+  created_at: string;
+}
+export interface PssApprovalsList {
+  role: string;
+  can_decide: boolean;
+  count: number;
+  requests: PssReviewItem[];
+}
+export interface PssReviewDetail extends PssReviewItem {
+  entity_data: Record<string, unknown> | null;
+  sq_score: number | null;
+}
 
 export const {
   useGetChildrenQuery,
@@ -51,4 +89,7 @@ export const {
   useGetCorporateDashboardQuery,
   useGetMasterDashboardQuery,
   useRenameMyDisplayNameMutation,
+  useGetPssApprovalsQuery,
+  useGetPssApprovalDetailQuery,
+  useDecidePssApprovalMutation,
 } = franchisesApi;

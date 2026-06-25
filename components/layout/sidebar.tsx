@@ -32,10 +32,12 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'My Stores', href: '/sub/stores', icon: Store, roles: ['sub'] },
   { label: 'Territory Map', href: '/sub/territory', icon: Map, roles: ['sub'] },
   { label: 'Compliance', href: '/sub/compliance', icon: ClipboardCheck, roles: ['sub'] },
+  { label: 'PSS Approvals', href: '/sub/pss-approvals', icon: ClipboardCheck, roles: ['sub'] },
   { label: 'Overview', href: '/corporate', icon: LayoutDashboard, roles: ['corporate'] },
   { label: 'Sub Franchises', href: '/corporate/subs', icon: Store, roles: ['corporate'] },
   { label: 'Regional Map', href: '/corporate/map', icon: Map, roles: ['corporate'] },
   { label: 'Reports', href: '/corporate/reports', icon: BarChart3, roles: ['corporate'] },
+  { label: 'PSS Approvals', href: '/corporate/pss-approvals', icon: ClipboardCheck, roles: ['corporate'] },
   // After the Corporate > Master > Sub hierarchy flip, Master is the middle
   // layer — it owns Subs directly, not Corporates. Old labels ("Corporates",
   // "Multi-Region Map", "Enterprise KPIs") were renamed accordingly so the
@@ -44,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Sub Franchises', href: '/master/subs', icon: Store, roles: ['master'] },
   { label: 'Territory Map', href: '/master/map', icon: Map, roles: ['master'] },
   { label: 'Reports', href: '/master/reports', icon: BarChart3, roles: ['master'] },
+  { label: 'PSS Approvals', href: '/master/pss-approvals', icon: ClipboardCheck, roles: ['master'] },
 ];
 
 export function Sidebar({ role }: { role: FranchiseLevel }) {

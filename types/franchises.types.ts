@@ -11,7 +11,7 @@ export interface GeoPoint {
 }
 
 export interface Franchise {
-  _id: string;
+  id: string;
   level: FranchiseLevel;
   parent_id: string | null;
   /** Immutable identity, e.g. "SUB-LHR-001". */
@@ -48,7 +48,7 @@ export interface FranchiseOwnerSession {
 // ─── Dashboard payloads (match backend DashboardService) ───────────────────────
 
 export interface StoreLink {
-  _id: string;
+  id: string;
   store_id: string;
   /** Cached display name from the source platform (e.g. GoSellr business_name). */
   store_name?: string | null;

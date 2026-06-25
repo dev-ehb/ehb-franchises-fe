@@ -107,7 +107,7 @@ export default function MasterReportsPage() {
   );
 }
 
-function StatusBreakdown({ subs }: { subs: { status: string; _id: string }[] }) {
+function StatusBreakdown({ subs }: { subs: { status: string; id: string }[] }) {
   const counts: Record<string, number> = {};
   for (const s of subs) counts[s.status] = (counts[s.status] ?? 0) + 1;
   const entries = Object.entries(counts);
@@ -138,7 +138,7 @@ function StatusBreakdown({ subs }: { subs: { status: string; _id: string }[] }) 
   );
 }
 
-function UtilisationHistogram({ subs }: { subs: { store_count: number; _id: string }[] }) {
+function UtilisationHistogram({ subs }: { subs: { store_count: number; id: string }[] }) {
   // Bucket Subs by 25 %-utilisation slabs so the Master owner sees the shape
   // of the network at a glance: are most Subs empty, half-full, or stretched?
   const buckets: { label: string; min: number; max: number; count: number }[] = [
@@ -212,7 +212,7 @@ function UtilisationTable({
   subs,
 }: {
   subs: {
-    _id: string;
+    id: string;
     code?: string;
     name: string;
     display_name?: string;

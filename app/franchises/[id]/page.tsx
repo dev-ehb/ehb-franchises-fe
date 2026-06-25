@@ -663,7 +663,7 @@ function StoreTable({
   franchiseLookup,
 }: {
   stores: {
-    _id: string;
+    id: string;
     store_id: string;
     store_name?: string | null;
     franchise_id: string;
