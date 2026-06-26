@@ -109,7 +109,7 @@ export default function MasterDashboardPage() {
               This Master (pin)
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded-full border-2 border-primary-600 bg-primary-500/20" />
+              <span className="inline-block h-3 w-3 rounded-full border-2 border-brand-600 bg-brand-500/20" />
               Sub territory
             </span>
             <span className="flex items-center gap-1">
@@ -127,8 +127,8 @@ export default function MasterDashboardPage() {
 
 function SubsTable({ subs, conflicts }: { subs: Franchise[]; conflicts: Set<string> }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2">
         <h2 className="text-sm font-semibold text-gray-700">Child Sub franchises</h2>
         <span className="text-xs text-gray-500">{subs.length} total</span>
       </div>
@@ -138,7 +138,7 @@ function SubsTable({ subs, conflicts }: { subs: Franchise[]; conflicts: Set<stri
         </div>
       ) : (
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+          <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
             <tr>
               <th className="px-4 py-2 font-medium">Name</th>
               <th className="px-4 py-2 font-medium">Stores</th>

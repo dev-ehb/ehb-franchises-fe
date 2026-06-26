@@ -70,7 +70,7 @@ export default function CorporateRegionalMapPage() {
         zoom={10}
         circles={circles}
         markers={[selfMarker, ...masterMarkers]}
-        className="relative h-[32rem] w-full overflow-hidden rounded-xl border border-gray-200"
+        className="relative h-[32rem] w-full overflow-hidden rounded-2xl border border-gray-100"
         legend={
           <div className="flex flex-col gap-1">
             <span className="flex items-center gap-1">

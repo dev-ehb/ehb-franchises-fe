@@ -122,8 +122,8 @@ function BrandStandardisationMatrix({
   subsByParent: Record<string, Franchise[]>;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2">
         <h2 className="text-sm font-semibold text-gray-700">Brand standardisation</h2>
         <span className="text-xs text-gray-500">
           Standard Sub radius: {STANDARD_RADIUS_KM} km
@@ -136,7 +136,7 @@ function BrandStandardisationMatrix({
         </div>
       ) : (
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+          <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
             <tr>
               <th className="px-4 py-2 font-medium">Master</th>
               <th className="px-4 py-2 font-medium">Subs</th>

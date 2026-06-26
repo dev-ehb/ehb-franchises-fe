@@ -42,10 +42,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!auth.hydrated || !auth.role) {
     return (
       <div className="flex h-screen overflow-hidden">
-        <aside className="w-[220px] border-r border-gray-200 bg-white" />
+        <aside className="w-[230px] border-r border-gray-100 bg-white" />
         <div className="flex flex-1 flex-col overflow-hidden">
-          <div className="h-14 border-b border-gray-200 bg-white" />
-          <main className="relative flex-1 overflow-y-auto bg-gray-50 p-6" />
+          <div className="h-16 border-b border-gray-100 bg-white" />
+          <main className="relative flex-1 overflow-y-auto bg-[#f6f8f6] p-6" />
         </div>
       </div>
     );
@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar role={auth.role} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar role={auth.role} email={auth.user?.email} />
-        <main className="relative flex-1 overflow-y-auto bg-gray-50 p-6">{children}</main>
+        <main className="relative flex-1 overflow-y-auto bg-[#f6f8f6] p-6 md:p-8">{children}</main>
       </div>
     </div>
   );

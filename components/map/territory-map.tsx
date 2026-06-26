@@ -63,7 +63,7 @@ export function TerritoryMap({
     <div
       className={
         className ??
-        'relative h-80 w-full overflow-hidden rounded-xl border border-gray-200'
+        'relative h-80 w-full overflow-hidden rounded-2xl border border-gray-100'
       }
     >
       <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
@@ -107,7 +107,7 @@ export function TerritoryMap({
         // to sit above all of them or it disappears behind the tile / marker
         // / control layers. pointer-events-auto keeps the legend interactive
         // even though the outer wrapper sits over the map.
-        <div className="pointer-events-auto absolute bottom-3 right-3 z-[1100] rounded-lg border border-gray-200 bg-white/95 px-3 py-2 text-xs shadow-md backdrop-blur-sm">
+        <div className="pointer-events-auto absolute bottom-3 right-3 z-[1100] rounded-lg border border-gray-100 bg-white/95 px-3 py-2 text-xs shadow-md backdrop-blur-sm">
           {legend}
         </div>
       )}

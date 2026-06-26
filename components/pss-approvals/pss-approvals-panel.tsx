@@ -78,7 +78,7 @@ export function PssApprovalsPanel({ readOnly }: { readOnly: boolean }) {
             key={r.id}
             onClick={() => { setSelected(r.id); reset(); }}
             className={`w-full rounded-lg border p-3 text-left text-sm transition-colors ${
-              selected === r.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:bg-gray-50"
+              selected === r.id ? "border-blue-500 bg-blue-50" : "border-gray-100 hover:bg-gray-50"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -95,7 +95,7 @@ export function PssApprovalsPanel({ readOnly }: { readOnly: boolean }) {
       </div>
 
       {/* Detail + decision */}
-      <div className="rounded-lg border border-gray-200 p-4">
+      <div className="rounded-lg border border-gray-100 p-4">
         {!selected ? (
           <p className="text-sm text-gray-400">Select a request to view details.</p>
         ) : !detail ? (
@@ -139,7 +139,7 @@ export function PssApprovalsPanel({ readOnly }: { readOnly: boolean }) {
                       key={m}
                       onClick={() => setMode(m)}
                       className={`rounded-lg border px-2 py-1.5 text-xs font-medium ${
-                        mode === m ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-200 hover:bg-gray-50"
+                        mode === m ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-100 hover:bg-gray-50"
                       }`}
                     >
                       {m === "changes_requested" ? "Request Changes" : m.charAt(0).toUpperCase() + m.slice(1)}

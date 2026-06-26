@@ -4,29 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
-  LayoutDashboard,
-  Store,
-  Map,
-  ClipboardCheck,
-  BarChart3,
-  PanelLeftClose,
-  PanelLeftOpen,
+  LayoutDashboard, Store, Map, ClipboardCheck, BarChart3, PanelLeftClose, PanelLeftOpen, Network,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FranchiseLevel } from '@/types/franchises.types';
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon: React.ElementType;
-  roles: FranchiseLevel[];
-}
+interface NavItem { label: string; href: string; icon: React.ElementType; roles: FranchiseLevel[]; }
 
-/**
- * Role-gated navigation. The same component renders for every level — items
- * are filtered by the owner's role so the shell stays visually identical
- * (profile/nav in the same position) across Sub/Corporate/Master dashboards.
- */
 const NAV_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/sub', icon: LayoutDashboard, roles: ['sub'] },
   { label: 'My Stores', href: '/sub/stores', icon: Store, roles: ['sub'] },
@@ -38,10 +22,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Regional Map', href: '/corporate/map', icon: Map, roles: ['corporate'] },
   { label: 'Reports', href: '/corporate/reports', icon: BarChart3, roles: ['corporate'] },
   { label: 'PSS Approvals', href: '/corporate/pss-approvals', icon: ClipboardCheck, roles: ['corporate'] },
-  // After the Corporate > Master > Sub hierarchy flip, Master is the middle
-  // layer — it owns Subs directly, not Corporates. Old labels ("Corporates",
-  // "Multi-Region Map", "Enterprise KPIs") were renamed accordingly so the
-  // nav matches what the user actually sees on each page.
   { label: 'Overview', href: '/master', icon: LayoutDashboard, roles: ['master'] },
   { label: 'Sub Franchises', href: '/master/subs', icon: Store, roles: ['master'] },
   { label: 'Territory Map', href: '/master/map', icon: Map, roles: ['master'] },
@@ -49,22 +29,31 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'PSS Approvals', href: '/master/pss-approvals', icon: ClipboardCheck, roles: ['master'] },
 ];
 
+const ROLE_LABEL: Record<FranchiseLevel, string> = {
+  sub: 'Sub Franchise', master: 'Master Franchise', corporate: 'Corporate Franchise',
+};
+
 export function Sidebar({ role }: { role: FranchiseLevel }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const items = NAV_ITEMS.filter((i) => i.roles.includes(role));
 
   return (
-    <aside
-      className={cn(
-        'flex h-full flex-col border-r border-gray-200 bg-white transition-all duration-200',
-        collapsed ? 'w-[60px]' : 'w-[220px]',
-      )}
-    >
-      <div className="flex h-14 items-center gap-2 border-b border-gray-200 px-4">
-        {!collapsed && <span className="text-sm font-semibold text-gray-900">EHB Franchises</span>}
+    <aside className={cn('flex h-full flex-col border-r border-gray-100 bg-white transition-all duration-200', collapsed ? 'w-[64px]' : 'w-[230px]')}>
+      <div className="flex h-16 items-center gap-2.5 border-b border-gray-100 px-4">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
+          <Network className="h-4 w-4" />
+        </span>
+        {!collapsed && (
+          <div className="leading-tight">
+            <p className="font-display text-sm font-extrabold tracking-tight text-ink">EHB Franchises</p>
+            <p className="text-[10px] text-gray-400">{ROLE_LABEL[role]}</p>
+          </div>
+        )}
       </div>
-      <nav className="flex-1 space-y-1 p-2">
+
+      <nav className="flex-1 space-y-1 p-3">
+        {!collapsed && <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Menu</p>}
         {items.map((item) => {
           const active = pathname === item.href;
           const Icon = item.icon;
@@ -72,22 +61,22 @@ export function Sidebar({ role }: { role: FranchiseLevel }) {
             <Link
               key={item.href}
               href={item.href}
+              title={collapsed ? item.label : undefined}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                active
-                  ? 'bg-primary-50 font-medium text-primary-700'
-                  : 'text-gray-600 hover:bg-gray-50',
+                'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors',
+                active ? 'bg-brand-50 text-brand-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon className={cn('h-[18px] w-[18px] shrink-0', active ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-700')} />
               {!collapsed && <span>{item.label}</span>}
             </Link>
           );
         })}
       </nav>
+
       <button
         onClick={() => setCollapsed((c) => !c)}
-        className="flex items-center gap-2 border-t border-gray-200 px-4 py-3 text-sm text-gray-500 hover:bg-gray-50"
+        className="flex items-center gap-2 border-t border-gray-100 px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50"
       >
         {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         {!collapsed && <span>Collapse</span>}

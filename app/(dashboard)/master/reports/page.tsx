@@ -79,7 +79,7 @@ export default function MasterReportsPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <StatusBreakdown subs={child_subs} />
         <UtilisationHistogram subs={child_subs} />
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-card">
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-soft">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Activity className="h-4 w-4" />
             Health summary
@@ -113,7 +113,7 @@ function StatusBreakdown({ subs }: { subs: { status: string; id: string }[] }) {
   const entries = Object.entries(counts);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-card">
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-soft">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
         <Layers className="h-4 w-4" />
         Status breakdown
@@ -157,7 +157,7 @@ function UtilisationHistogram({ subs }: { subs: { store_count: number; id: strin
   const max = Math.max(1, ...buckets.map((b) => b.count));
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-card">
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-soft">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
         <Building2 className="h-4 w-4" />
         Capacity distribution
@@ -168,7 +168,7 @@ function UtilisationHistogram({ subs }: { subs: { store_count: number; id: strin
             <span className="w-14 shrink-0 text-gray-500">{b.label}</span>
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full bg-primary-500"
+                className="h-full bg-brand-500"
                 style={{ width: `${(b.count / max) * 100}%` }}
               />
             </div>
@@ -224,8 +224,8 @@ function UtilisationTable({
   const sorted = [...subs].sort((a, b) => b.store_count - a.store_count);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
           <StoreIcon className="h-4 w-4" />
           Per-Sub utilisation
@@ -238,7 +238,7 @@ function UtilisationTable({
         </div>
       ) : (
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+          <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
             <tr>
               <th className="px-4 py-2 font-medium">Sub</th>
               <th className="px-4 py-2 font-medium">Utilisation</th>
@@ -271,7 +271,7 @@ function UtilisationTable({
                           className={
                             pct >= 90
                               ? 'h-full bg-amber-500'
-                              : 'h-full bg-primary-500'
+                              : 'h-full bg-brand-500'
                           }
                           style={{ width: `${pct}%` }}
                         />

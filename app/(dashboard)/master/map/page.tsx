@@ -97,7 +97,7 @@ export default function MasterTerritoryMapPage() {
         markers={markers}
         // Override the default h-80 so the dedicated map page can breathe and
         // the legend doesn't crowd the markers.
-        className="relative h-[32rem] w-full overflow-hidden rounded-xl border border-gray-200"
+        className="relative h-[32rem] w-full overflow-hidden rounded-2xl border border-gray-100"
         legend={
             <div className="flex flex-col gap-1">
               <span className="flex items-center gap-1">
@@ -105,7 +105,7 @@ export default function MasterTerritoryMapPage() {
                 This Master (pin)
               </span>
               <span className="flex items-center gap-1">
-                <span className="inline-block h-3 w-3 rounded-full border-2 border-primary-600 bg-primary-500/20" />
+                <span className="inline-block h-3 w-3 rounded-full border-2 border-brand-600 bg-brand-500/20" />
                 Sub territory
               </span>
               {conflicts.size > 0 && (

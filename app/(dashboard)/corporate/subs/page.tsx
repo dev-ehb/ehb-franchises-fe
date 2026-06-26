@@ -60,13 +60,13 @@ export default function CorporateSubsPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by name, code, or region"
-            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
       </div>
 
       {child_masters.length === 0 && grandchild_subs.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">
+        <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">
           No Masters or Subs in this territory yet. They will appear here once stores
           start registering inside your radius.
         </div>
@@ -91,14 +91,14 @@ export default function CorporateSubsPage() {
             return (
               <div
                 key={m.id}
-                className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card"
+                className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-amber-50/40 px-4 py-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-amber-50/40 px-4 py-2.5">
                   <div className="flex items-center gap-2 min-w-0">
                     <Network className="h-4 w-4 shrink-0 text-amber-700" />
                     <Link
                       href={`/franchises/${m.id}`}
-                      className="truncate text-sm font-semibold text-gray-800 hover:text-primary-700"
+                      className="truncate text-sm font-semibold text-gray-800 hover:text-brand-700"
                     >
                       {m.display_name ?? m.name}
                     </Link>
@@ -122,7 +122,7 @@ export default function CorporateSubsPage() {
                   </div>
                 ) : (
                   <table className="w-full text-sm">
-                    <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+                    <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
                       <tr>
                         <th className="px-4 py-2 font-medium">Sub</th>
                         <th className="px-4 py-2 font-medium">Stores</th>
@@ -143,7 +143,7 @@ export default function CorporateSubsPage() {
                             <td className="px-4 py-2">
                               <Link
                                 href={`/franchises/${s.id}`}
-                                className="block text-sm font-medium text-gray-800 hover:text-primary-700"
+                                className="block text-sm font-medium text-gray-800 hover:text-brand-700"
                               >
                                 {s.display_name ?? s.name}
                               </Link>
@@ -161,7 +161,7 @@ export default function CorporateSubsPage() {
                                     className={
                                       pct >= 90
                                         ? 'h-full bg-amber-500'
-                                        : 'h-full bg-primary-500'
+                                        : 'h-full bg-brand-500'
                                     }
                                     style={{ width: `${pct}%` }}
                                   />
@@ -217,7 +217,7 @@ function SummaryCard({
   activeMasters: number;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-card">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-soft">
       <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
         <StoreIcon className="h-4 w-4" />
         {label}

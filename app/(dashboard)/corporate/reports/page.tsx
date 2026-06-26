@@ -92,7 +92,7 @@ export default function CorporateReportsPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <SubStatusBreakdown subs={grandchild_subs} />
         <UtilisationHistogram subs={grandchild_subs} />
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-card">
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-soft">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Activity className="h-4 w-4" />
             Health summary
@@ -131,7 +131,7 @@ function SubStatusBreakdown({ subs }: { subs: Franchise[] }) {
   const entries = Object.entries(counts);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-card">
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-soft">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
         <Layers className="h-4 w-4" />
         Sub status breakdown
@@ -171,7 +171,7 @@ function UtilisationHistogram({ subs }: { subs: Franchise[] }) {
   const max = Math.max(1, ...buckets.map((b) => b.count));
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-card">
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-soft">
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
         <Building2 className="h-4 w-4" />
         Capacity distribution
@@ -182,7 +182,7 @@ function UtilisationHistogram({ subs }: { subs: Franchise[] }) {
             <span className="w-14 shrink-0 text-gray-500">{b.label}</span>
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full bg-primary-500"
+                className="h-full bg-brand-500"
                 style={{ width: `${(b.count / max) * 100}%` }}
               />
             </div>
@@ -240,8 +240,8 @@ function PerMasterTable({
     .sort((a, b) => b.stores - a.stores);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
           <Network className="h-4 w-4" />
           Per-Master roll-up
@@ -254,7 +254,7 @@ function PerMasterTable({
         </div>
       ) : (
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+          <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
             <tr>
               <th className="px-4 py-2 font-medium">Master</th>
               <th className="px-4 py-2 font-medium">Subs</th>
@@ -270,7 +270,7 @@ function PerMasterTable({
                 <td className="px-4 py-2">
                   <Link
                     href={`/franchises/${master.id}`}
-                    className="block text-sm font-medium text-gray-800 hover:text-primary-700"
+                    className="block text-sm font-medium text-gray-800 hover:text-brand-700"
                   >
                     {master.display_name ?? master.name}
                   </Link>
@@ -287,7 +287,7 @@ function PerMasterTable({
                     <div className="h-1.5 w-32 overflow-hidden rounded-full bg-gray-100">
                       <div
                         className={
-                          util >= 90 ? 'h-full bg-amber-500' : 'h-full bg-primary-500'
+                          util >= 90 ? 'h-full bg-amber-500' : 'h-full bg-brand-500'
                         }
                         style={{ width: `${util}%` }}
                       />

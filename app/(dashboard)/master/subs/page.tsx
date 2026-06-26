@@ -56,13 +56,13 @@ export default function MasterSubsPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter by name, code, or region"
-            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
-        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft">
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2">
           <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <StoreIcon className="h-4 w-4" />
             Sub franchises under this Master
@@ -79,7 +79,7 @@ export default function MasterSubsPage() {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+            <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
               <tr>
                 <th className="px-4 py-2 font-medium">Sub</th>
                 <th className="px-4 py-2 font-medium">Stores</th>
@@ -100,7 +100,7 @@ export default function MasterSubsPage() {
                     <td className="px-4 py-2">
                       <Link
                         href={`/franchises/${s.id}`}
-                        className="block text-sm font-medium text-gray-800 hover:text-primary-700"
+                        className="block text-sm font-medium text-gray-800 hover:text-brand-700"
                       >
                         {s.display_name ?? s.name}
                       </Link>
@@ -118,7 +118,7 @@ export default function MasterSubsPage() {
                             className={
                               pct >= 90
                                 ? 'h-full bg-amber-500'
-                                : 'h-full bg-primary-500'
+                                : 'h-full bg-brand-500'
                             }
                             style={{ width: `${pct}%` }}
                           />

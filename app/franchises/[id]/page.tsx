@@ -3,22 +3,27 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Building2, ChevronRight, Clock, Crown, MapPin, Network, Store, UserCheck } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  ChevronRight,
+  Clock,
+  Crown,
+  MapPin,
+  Network,
+  Store,
+  UserCheck,
+  Sparkles,
+  CheckCircle2,
+} from 'lucide-react';
 import { useGetCatalogDetailQuery } from '@/lib/store/api/catalog.api';
 import { useSubmitPurchaseRequestMutation } from '@/lib/store/api/purchase-requests.api';
 import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/territory-map';
 import { useAppSelector } from '@/lib/store/hooks';
 import { getLevelLabel, getStatusColor, formatDate } from '@/lib/utils';
-import type { Franchise } from '@/types/franchises.types';
+import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
 
-/**
- * Public franchise detail page.
- *
- *   Top:    Name, status, "Buy now" button (PAYMENT_HOOK)
- *   Map:    Territory circle + child Sub/Corporate territories layered in
- *   Up:     Parent corporate / master chain
- *   Down:   Child franchises and stores under this franchise's subtree
- */
 export default function PublicFranchiseDetailPage() {
   const params = useParams<{ id: string }>();
   const { data, isLoading, isError } = useGetCatalogDetailQuery(params.id);
@@ -26,22 +31,22 @@ export default function PublicFranchiseDetailPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <SimpleHeader authedRole={auth.role} />
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <div className="skeleton h-96 w-full" />
+      <main className="min-h-dvh bg-white">
+        <SiteHeader authedRole={auth.role} />
+        <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+          <div className="skeleton h-96 w-full rounded-4xl" />
         </div>
       </main>
     );
   }
   if (isError || !data) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <SimpleHeader authedRole={auth.role} />
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <p className="text-sm text-red-600">Franchise not found.</p>
-          <Link href="/" className="mt-4 inline-flex items-center gap-1 text-sm text-primary-700 hover:underline">
-            <ArrowLeft className="h-4 w-4" /> Back to listing
+      <main className="min-h-dvh bg-white">
+        <SiteHeader authedRole={auth.role} />
+        <div className="mx-auto max-w-6xl px-5 py-16 text-center sm:px-8">
+          <p className="font-display text-lg font-bold text-ink">Franchise not found.</p>
+          <Link href="/" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline">
+            <ArrowLeft className="h-4 w-4" /> Back to the network
           </Link>
         </div>
       </main>
@@ -63,17 +68,13 @@ export default function PublicFranchiseDetailPage() {
     franchise.center.coordinates[0],
   ];
 
-  // Only Subs have a territory (radius). Corporate + Master are organisational
-  // layers — they get a pin at their centre instead of a circle. The map
-  // therefore mixes circles (Subs) and markers (Corporates/Masters + stores).
   const circles: MapCircle[] = [];
   const markers: MapMarker[] = [];
 
-  const CORPORATE_COLOR = '#7c2d12'; // orange-ish
-  const MASTER_COLOR    = '#92400e'; // amber-ish
-  const SELF_PIN_COLOR  = '#1d4ed8'; // bold blue for "this" pin if non-Sub
+  const CORPORATE_COLOR = '#7c3a20';
+  const MASTER_COLOR = '#4a2f7d';
+  const SELF_PIN_COLOR = '#1f6e47';
 
-  // PARENT pins — Corporate/Master have no radius, just a labelled pin.
   for (const p of parents) {
     markers.push({
       position: [p.center.coordinates[1], p.center.coordinates[0]],
@@ -82,13 +83,12 @@ export default function PublicFranchiseDetailPage() {
     });
   }
 
-  // SELF — Sub gets a blue circle; Corporate/Master get a pin only.
   if (franchise.level === 'sub' && franchise.radius_km > 0) {
     circles.push({
       center: centerLatLng,
       radiusKm: franchise.radius_km,
-      color: '#2563eb',
-      fillColor: '#3b82f6',
+      color: '#1f6e47',
+      fillColor: '#2b885b',
       label: `${franchise.display_name ?? franchise.name} • This franchise`,
     });
   } else {
@@ -99,7 +99,6 @@ export default function PublicFranchiseDetailPage() {
     });
   }
 
-  // CHILD Master pins (visible on a Corporate's page).
   for (const m of child_masters) {
     markers.push({
       position: [m.center.coordinates[1], m.center.coordinates[0]],
@@ -108,28 +107,24 @@ export default function PublicFranchiseDetailPage() {
     });
   }
 
-  // CHILD Sub circles (visible on a Master's or Corporate's page).
   for (const s of child_subs) {
     circles.push({
       center: [s.center.coordinates[1], s.center.coordinates[0]],
       radiusKm: s.radius_km,
-      color: '#60a5fa',
-      fillColor: '#93c5fd',
+      color: '#43a373',
+      fillColor: '#71bf95',
       label: `${s.display_name ?? s.name} • Sub${s.code ? ` (${s.code})` : ''}`,
     });
   }
 
-  // STORE pins. Pushed last so they render on top of every circle and parent pin.
   for (const s of stores) {
     markers.push({
       position: [s.store_location.coordinates[1], s.store_location.coordinates[0]],
+      color: '#1f6e47',
       label: `Store ${s.store_id.slice(-6)}`,
     });
   }
 
-  // Zoom heuristic — driven by the LARGEST visible Sub radius (since only Subs
-  // have territory now). For a Corporate/Master page, that's the biggest child
-  // or grandchild Sub. For a Sub page, it's the Sub itself.
   const visibleSubRadii = [
     franchise.level === 'sub' ? franchise.radius_km : 0,
     ...child_subs.map((s) => s.radius_km),
@@ -140,133 +135,119 @@ export default function PublicFranchiseDetailPage() {
   else if (franchise.level === 'master') zoom = 10;
   else zoom = maxRadius >= 10 ? 12 : 13;
 
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <SimpleHeader authedRole={auth.role} />
+  const tone = LEVEL_TONE[franchise.level];
+  const HeadIcon = tone.icon;
 
-      <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
-        {/* Back link */}
-        <Link href="/" className="inline-flex items-center gap-1 text-sm text-primary-700 hover:underline">
-          <ArrowLeft className="h-4 w-4" /> Back to all franchises
+  return (
+    <main className="min-h-dvh bg-white">
+      <SiteHeader authedRole={auth.role} />
+
+      <div className="mx-auto max-w-6xl space-y-8 px-5 py-8 sm:px-8">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800">
+          <ArrowLeft className="h-4 w-4" /> Back to the network
         </Link>
 
         {/* Header card */}
-        <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl bg-white p-6 shadow-card">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <LevelIcon level={franchise.level} />
-              <div>
-                <p className="text-xs uppercase tracking-wide text-gray-400">
-                  {getLevelLabel(franchise.level)}
-                </p>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  {franchise.display_name ?? franchise.name}
-                </h1>
-                {franchise.code && (
-                  <span className="mt-1 inline-block rounded bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-600">
-                    {franchise.code}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
-              <span className={`rounded-full px-2 py-0.5 ${getStatusColor(franchise.status)}`}>
-                {franchise.status}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {centerLatLng[0].toFixed(4)}, {centerLatLng[1].toFixed(4)}
-              </span>
-              <span>Region: <span className="font-medium text-gray-700">{franchise.region}</span></span>
-              {franchise.level === 'sub' && franchise.radius_km > 0 && (
-                <span>Radius: <span className="font-medium text-gray-700">{franchise.radius_km} km</span></span>
-              )}
-              <span>Created: <span className="font-medium text-gray-700">{formatDate(franchise.created_at)}</span></span>
-            </div>
-            {buyer && (
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-800">
-                <UserCheck className="h-3.5 w-3.5" />
-                <span>
-                  Owned by <span className="font-semibold">{buyer.name}</span>
+        <div className="overflow-hidden rounded-4xl border border-gray-100 bg-white shadow-soft">
+          <div className={`h-1.5 w-full ${tone.bar}`} />
+          <div className="flex flex-wrap items-start justify-between gap-5 p-6 sm:p-7">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3.5">
+                <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${tone.wrap}`}>
+                  <HeadIcon className="h-6 w-6" aria-hidden />
                 </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-600">
+                    {getLevelLabel(franchise.level)}
+                  </p>
+                  <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink">
+                    {franchise.display_name ?? franchise.name}
+                  </h1>
+                  {franchise.code && (
+                    <span className="mt-1 inline-block rounded bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-500">
+                      {franchise.code}
+                    </span>
+                  )}
+                </div>
               </div>
-            )}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
+                <span className={`rounded-full px-2.5 py-0.5 font-medium capitalize ${getStatusColor(franchise.status)}`}>
+                  {franchise.status}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-gray-400" aria-hidden />
+                  <span className="font-mono">
+                    {centerLatLng[0].toFixed(4)}, {centerLatLng[1].toFixed(4)}
+                  </span>
+                </span>
+                <span>Region: <span className="font-semibold text-ink">{franchise.region}</span></span>
+                {franchise.level === 'sub' && franchise.radius_km > 0 && (
+                  <span>Radius: <span className="font-semibold text-ink">{franchise.radius_km} km</span></span>
+                )}
+                <span>Created: <span className="font-semibold text-ink">{formatDate(franchise.created_at)}</span></span>
+              </div>
+              {buyer && (
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+                  <UserCheck className="h-3.5 w-3.5" aria-hidden />
+                  Owned by <span className="font-semibold">{buyer.name}</span>
+                </div>
+              )}
+            </div>
+            <BuyNowButton
+              available={is_available_for_purchase}
+              hasPendingRequest={has_pending_request}
+              buyer={buyer}
+              franchiseId={franchise.id}
+              franchiseCode={franchise.code}
+              franchiseName={franchise.display_name ?? franchise.name}
+            />
           </div>
-          <BuyNowButton
-            available={is_available_for_purchase}
-            hasPendingRequest={has_pending_request}
-            buyer={buyer}
-            franchiseId={franchise.id}
-            franchiseCode={franchise.code}
-            franchiseName={franchise.display_name ?? franchise.name}
-          />
         </div>
 
-        {/* Map location */}
+        {/* Map */}
         <div>
-          <h2 className="mb-2 text-sm font-semibold text-gray-700">Map location</h2>
-          <TerritoryMap
-            center={centerLatLng}
-            circles={circles}
-            markers={markers}
-            zoom={zoom}
-            legend={
-              <div className="flex flex-col gap-1">
-                {parents.some((p) => p.level === 'corporate') && (
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block h-3 w-3 rounded-full bg-orange-800" />
-                    Parent Corporate (pin)
-                  </span>
-                )}
-                {parents.some((p) => p.level === 'master') && (
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block h-3 w-3 rounded-full bg-amber-700" />
-                    Parent Master (pin)
-                  </span>
-                )}
-                {franchise.level === 'sub' ? (
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block h-3 w-3 rounded-full border-2 border-primary-600 bg-primary-500/20" />
-                    This Sub
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block h-3 w-3 rounded-full bg-blue-700" />
-                    This {franchise.level === 'corporate' ? 'Corporate' : 'Master'} (pin)
-                  </span>
-                )}
-                {child_masters.length > 0 && (
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block h-3 w-3 rounded-full bg-amber-700" />
-                    Child Master (pin)
-                  </span>
-                )}
-                {child_subs.length > 0 && (
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block h-3 w-3 rounded-full border-2 border-blue-400 bg-blue-300/30" />
-                    Child Sub
-                  </span>
-                )}
-                {stores.length > 0 && (
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block h-3 w-3 rounded-full bg-primary-600" />
-                    Stores
-                  </span>
-                )}
-              </div>
-            }
-          />
+          <h2 className="mb-3 font-display text-lg font-bold text-ink">Territory map</h2>
+          <div className="overflow-hidden rounded-4xl border border-gray-100 shadow-soft">
+            <TerritoryMap
+              center={centerLatLng}
+              circles={circles}
+              markers={markers}
+              zoom={zoom}
+              legend={
+                <div className="flex flex-col gap-1.5">
+                  {parents.some((p) => p.level === 'corporate') && (
+                    <LegendItem swatch="bg-[#7c3a20]" label="Parent Corporate (pin)" />
+                  )}
+                  {parents.some((p) => p.level === 'master') && (
+                    <LegendItem swatch="bg-[#4a2f7d]" label="Parent Master (pin)" />
+                  )}
+                  {franchise.level === 'sub' ? (
+                    <LegendItem swatch="border-2 border-brand-600 bg-brand-500/20" label="This Sub (territory)" />
+                  ) : (
+                    <LegendItem swatch="bg-brand-600" label={`This ${franchise.level === 'corporate' ? 'Corporate' : 'Master'} (pin)`} />
+                  )}
+                  {child_masters.length > 0 && (
+                    <LegendItem swatch="bg-[#4a2f7d]" label="Child Master (pin)" />
+                  )}
+                  {child_subs.length > 0 && (
+                    <LegendItem swatch="border-2 border-brand-400 bg-brand-300/40" label="Child Sub" />
+                  )}
+                  {stores.length > 0 && <LegendItem swatch="bg-brand-600" label="Stores" />}
+                </div>
+              }
+            />
+          </div>
         </div>
 
         {/* Up: parent chain */}
         {parents.length > 0 && (
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-gray-700">Up the hierarchy</h2>
-            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-sm shadow-card">
+            <h2 className="mb-3 font-display text-lg font-bold text-ink">Up the hierarchy</h2>
+            <div className="flex flex-wrap items-center gap-2 rounded-3xl border border-gray-100 bg-cream p-4">
               <FranchiseChip franchise={franchise} self />
               {parents.map((p) => (
                 <span key={p.id} className="flex items-center gap-2">
-                  <ChevronRight className="h-3 w-3 text-gray-400" />
+                  <ChevronRight className="h-4 w-4 text-gray-400" aria-hidden />
                   <FranchiseChip franchise={p} />
                 </span>
               ))}
@@ -274,7 +255,7 @@ export default function PublicFranchiseDetailPage() {
           </div>
         )}
 
-        {/* Down: children (Masters → Subs → Stores) */}
+        {/* Down: children */}
         {child_masters.length > 0 && (
           <Section title="Master franchises under this Corporate" subtitle={`${child_masters.length} total`}>
             <FranchiseGrid franchises={child_masters} />
@@ -282,9 +263,7 @@ export default function PublicFranchiseDetailPage() {
         )}
         {child_subs.length > 0 && (
           <Section
-            title={
-              franchise.level === 'corporate' ? 'Sub franchises in this territory' : 'Sub franchises under this Master'
-            }
+            title={franchise.level === 'corporate' ? 'Sub franchises in this territory' : 'Sub franchises under this Master'}
             subtitle={`${child_subs.length} total`}
           >
             <FranchiseGrid franchises={child_subs} />
@@ -292,9 +271,7 @@ export default function PublicFranchiseDetailPage() {
         )}
         {stores.length > 0 && (
           <Section
-            title={
-              franchise.level === 'sub' ? 'Stores in this territory' : 'Stores across this network'
-            }
+            title={franchise.level === 'sub' ? 'Stores in this territory' : 'Stores across this network'}
             subtitle={`${stores.length} total`}
           >
             <StoreTable
@@ -304,9 +281,8 @@ export default function PublicFranchiseDetailPage() {
           </Section>
         )}
 
-        {/* Empty state — only a Sub with no stores or a fresh Corporate/Master */}
         {child_masters.length === 0 && child_subs.length === 0 && stores.length === 0 && (
-          <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-400">
+          <div className="rounded-4xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
             No children or stores under this franchise yet.
           </div>
         )}
@@ -315,42 +291,49 @@ export default function PublicFranchiseDetailPage() {
   );
 }
 
+// ── tokens ──────────────────────────────────────────────────────────────────
+
+const LEVEL_TONE: Record<FranchiseLevel, { wrap: string; bar: string; icon: React.ElementType }> = {
+  corporate: { wrap: 'bg-brand-50 text-brand-700', bar: 'bg-brand-600', icon: Crown },
+  master: { wrap: 'bg-lav-soft text-lav-ink', bar: 'bg-lav', icon: Network },
+  sub: { wrap: 'bg-coral-soft text-coral-ink', bar: 'bg-coral', icon: Building2 },
+};
+
 // ── pieces ────────────────────────────────────────────────────────────────────
 
-function SimpleHeader({ authedRole }: { authedRole: string | null }) {
+function SiteHeader({ authedRole }: { authedRole: string | null }) {
   return (
-    <header className="border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <Link href="/" className="text-sm font-semibold text-gray-900">
-          EHB Franchises
+    <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+        <Link href="/" className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink">
+          <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-600 text-white">
+            <Network className="h-4 w-4" aria-hidden />
+          </span>
+          EHB<span className="text-brand-600">Franchises</span>
         </Link>
-        <nav className="flex items-center gap-3 text-sm">
-          {authedRole ? (
-            <Link
-              href={`/${authedRole}`}
-              className="rounded-lg bg-primary-600 px-3 py-1.5 font-medium text-white hover:bg-primary-700"
-            >
-              My dashboard
-            </Link>
-          ) : (
-            <Link href="/login" className="rounded-lg bg-primary-600 px-3 py-1.5 font-medium text-white hover:bg-primary-700">
-              Sign in
-            </Link>
-          )}
-        </nav>
+        <div className="flex items-center gap-2.5">
+          <Link href="/" className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-gray-100 sm:inline-flex">
+            Browse network
+          </Link>
+          <Link
+            href={authedRole ? `/${authedRole}` : '/login'}
+            className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+          >
+            {authedRole ? 'My dashboard' : 'Sign in'}
+            {authedRole && <ArrowRight className="h-4 w-4" aria-hidden />}
+          </Link>
+        </div>
       </div>
     </header>
   );
 }
 
-function LevelIcon({ level }: { level: 'sub' | 'corporate' | 'master' }) {
-  // Corporate is now the territory root, so it gets the crown; Master sits in
-  // the middle and gets the network glyph; Sub stays a building.
-  const Icon = level === 'corporate' ? Crown : level === 'master' ? Network : Building2;
+function LegendItem({ swatch, label }: { swatch: string; label: string }) {
   return (
-    <div className="rounded-lg bg-primary-50 p-2 text-primary-700">
-      <Icon className="h-5 w-5" />
-    </div>
+    <span className="flex items-center gap-2 text-xs text-gray-600">
+      <span className={`inline-block h-3 w-3 rounded-full ${swatch}`} aria-hidden />
+      {label}
+    </span>
   );
 }
 
@@ -371,19 +354,10 @@ function BuyNowButton({
 }) {
   const [open, setOpen] = useState(false);
 
-  // Priority order:
-  //   1. Already owned (buyer present)  -> hard "Owned" pill
-  //   2. Pending purchase request       -> disabled "Request pending review"
-  //                                         (locks the franchise for everyone)
-  //   3. Otherwise unavailable          -> "Already assigned" (legacy SSO path)
-  //   4. Available                      -> "Buy now" opens the modal
   if (buyer) {
     return (
-      <div
-        className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800"
-        title={`Owned by ${buyer.name}`}
-      >
-        <UserCheck className="h-4 w-4" />
+      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800" title={`Owned by ${buyer.name}`}>
+        <UserCheck className="h-4 w-4" aria-hidden />
         Owned by {buyer.name}
       </div>
     );
@@ -392,21 +366,17 @@ function BuyNowButton({
     return (
       <button
         disabled
-        className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800"
-        title="An EHB admin is reviewing an existing buy request for this franchise. New requests are blocked until that one is resolved."
+        className="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-800"
+        title="An EHB admin is reviewing an existing buy request for this franchise."
       >
-        <Clock className="h-4 w-4" />
+        <Clock className="h-4 w-4" aria-hidden />
         Request pending review
       </button>
     );
   }
   if (!available) {
     return (
-      <button
-        disabled
-        className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white opacity-60"
-        title="Already assigned"
-      >
+      <button disabled className="cursor-not-allowed rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white opacity-50" title="Already assigned">
         Already assigned
       </button>
     );
@@ -415,9 +385,10 @@ function BuyNowButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
       >
-        Buy now
+        <Sparkles className="h-4 w-4" aria-hidden />
+        Claim this territory
       </button>
       {open && (
         <BuyForm
@@ -431,11 +402,6 @@ function BuyNowButton({
   );
 }
 
-/**
- * Modal "Buy now" form. Submits a POST /purchase-requests and shows a success
- * state. Payment is intentionally out of scope right now — admin reviews the
- * request in backoffice and forwards a temp password to the buyer manually.
- */
 function BuyForm({
   franchiseId,
   franchiseCode,
@@ -478,89 +444,72 @@ function BuyForm({
   }
 
   return (
-    // z-[2000] sits above react-leaflet's controls (which use z-index 1000).
-    // overflow-y-auto on the outer wrapper lets the modal scroll on short
-    // viewports so the submit button is always reachable.
-    <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center">
-      <div className="my-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-[2000] flex items-start justify-center overflow-y-auto bg-brand-950/50 p-4 backdrop-blur-sm sm:items-center">
+      <div className="my-auto w-full max-w-md rounded-4xl bg-white p-6 shadow-float sm:p-7">
         {done ? (
           <div className="space-y-3 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl">
-              ✓
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-brand-50 text-brand-600">
+              <CheckCircle2 className="h-7 w-7" aria-hidden />
             </div>
-            <h2 className="text-base font-semibold text-gray-900">Request sent to admin</h2>
-            <p className="text-sm text-gray-600">
+            <h2 className="font-display text-lg font-bold text-ink">Request sent to admin</h2>
+            <p className="text-sm leading-relaxed text-gray-600">
               An EHB staff member will review your request for{' '}
-              <strong>{franchiseName}</strong> ({franchiseCode}) and email you a temporary
-              password within the next business day. With that password you can sign in at
-              the franchises portal and start managing your territory.
+              <strong className="text-ink">{franchiseName}</strong> ({franchiseCode}) and email you a
+              temporary password within the next business day.
             </p>
             <button
               onClick={onClose}
-              className="mt-2 inline-block rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+              className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
             >
-              Close
+              Done
             </button>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900">Buy this franchise</h2>
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="font-display text-xl font-extrabold tracking-tight text-ink">Claim this territory</h2>
+                <p className="mt-1 text-xs text-gray-500">
+                  {franchiseName}
+                  <span className="ml-1.5 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">{franchiseCode}</span>
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="text-sm text-gray-500 hover:text-gray-800"
+                className="cursor-pointer rounded-full px-3 py-1 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-ink"
               >
                 Cancel
               </button>
             </div>
-            <p className="text-xs text-gray-500">
-              Submitting <span className="font-medium text-gray-700">{franchiseName}</span>
-              <span className="ml-1 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
-                {franchiseCode}
-              </span>
-            </p>
 
-            <Field label="Full name *" value={fullName} onChange={setFullName} placeholder="john doe" />
-            <Field
-              label="Email *"
-              value={email}
-              onChange={setEmail}
-              type="email"
-              placeholder="you@example.com"
-            />
-            <Field
-              label="Phone (optional)"
-              value={phone}
-              onChange={setPhone}
-              placeholder="+92-300-0000000"
-            />
+            <Field label="Full name *" value={fullName} onChange={setFullName} placeholder="John Doe" />
+            <Field label="Email *" value={email} onChange={setEmail} type="email" placeholder="you@example.com" />
+            <Field label="Phone (optional)" value={phone} onChange={setPhone} placeholder="+92-300-0000000" />
             <div>
-              <label className="block text-xs font-medium uppercase tracking-wide text-gray-500">
-                Message to admin (optional)
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">Message to admin (optional)</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={3}
                 placeholder="Why you want this franchise, your experience, etc."
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                className="mt-1.5 w-full rounded-2xl border border-gray-200 px-3.5 py-2.5 text-sm text-ink placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
               />
             </div>
 
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-              Payment is not collected yet. Submitting sends a request to EHB admin — they&apos;ll
-              review it and email you a temporary password if approved.
+            <div className="rounded-2xl border border-brand-100 bg-brand-50 p-3.5 text-xs leading-relaxed text-brand-800">
+              Payment is not collected yet. Submitting sends a request to EHB admin — they&apos;ll review it and email you a temporary password if approved.
             </div>
 
-            {error && <p className="text-xs text-red-600">{error}</p>}
+            {error && <p className="text-xs font-medium text-red-600">{error}</p>}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-primary-600 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-60"
+              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-brand-600 py-3 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700 disabled:opacity-60"
             >
               {isLoading ? 'Sending…' : 'Send request to admin'}
+              {!isLoading && <ArrowRight className="h-4 w-4" aria-hidden />}
             </button>
           </form>
         )}
@@ -584,13 +533,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium uppercase tracking-wide text-gray-500">{label}</label>
+      <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        className="mt-1.5 w-full rounded-2xl border border-gray-200 px-3.5 py-2.5 text-sm text-ink placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
       />
     </div>
   );
@@ -600,14 +549,12 @@ function FranchiseChip({ franchise, self = false }: { franchise: Franchise; self
   return (
     <Link
       href={`/franchises/${franchise.id}`}
-      className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${
-        self ? 'border-primary-300 bg-primary-50 text-primary-800' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+      className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 ${
+        self ? 'border-brand-300 bg-brand-50 text-brand-800' : 'border-gray-200 bg-white text-gray-700 hover:border-brand-200 hover:bg-brand-50'
       }`}
     >
-      <span className="text-[10px] uppercase tracking-wide text-gray-400">
-        {getLevelLabel(franchise.level)}
-      </span>
-      <span className="font-medium">{franchise.display_name ?? franchise.name}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{getLevelLabel(franchise.level)}</span>
+      <span className="font-semibold">{franchise.display_name ?? franchise.name}</span>
     </Link>
   );
 }
@@ -616,8 +563,8 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-700">{title}</h2>
-        {subtitle && <span className="text-xs text-gray-500">{subtitle}</span>}
+        <h2 className="font-display text-lg font-bold text-ink">{title}</h2>
+        {subtitle && <span className="text-xs font-medium text-gray-400">{subtitle}</span>}
       </div>
       {children}
     </div>
@@ -627,33 +574,42 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
 function FranchiseGrid({ franchises }: { franchises: Franchise[] }) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {franchises.map((f) => (
-        <Link
-          key={f.id}
-          href={`/franchises/${f.id}`}
-          className="block rounded-xl border border-gray-200 bg-white p-3 shadow-card hover:shadow-md"
-        >
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="truncate text-sm font-medium text-gray-900">
-                {f.display_name ?? f.name}
-              </div>
-              {f.code && (
-                <span className="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
-                  {f.code}
+      {franchises.map((f) => {
+        const tone = LEVEL_TONE[f.level];
+        const Icon = tone.icon;
+        return (
+          <Link
+            key={f.id}
+            href={`/franchises/${f.id}`}
+            className="group flex flex-col rounded-3xl border border-gray-100 bg-white p-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${tone.wrap}`}>
+                  <Icon className="h-4 w-4" aria-hidden />
                 </span>
-              )}
+                <div className="min-w-0">
+                  <div className="truncate font-display text-sm font-bold text-ink">{f.display_name ?? f.name}</div>
+                  {f.code && (
+                    <span className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-500">{f.code}</span>
+                  )}
+                </div>
+              </div>
+              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium capitalize ${getStatusColor(f.status)}`}>
+                {f.status}
+              </span>
             </div>
-            <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${getStatusColor(f.status)}`}>
-              {f.status}
-            </span>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            {f.region} · {f.radius_km} km
-            {f.level === 'sub' ? ` · ${f.store_count} stores` : ` · ${f.child_count} children`}
-          </div>
-        </Link>
-      ))}
+            <div className="mt-3 text-xs text-gray-500">
+              {f.region} · {f.radius_km} km
+              {f.level === 'sub' ? ` · ${f.store_count} stores` : ` · ${f.child_count} children`}
+            </div>
+            <div className="mt-3 flex items-center gap-1 border-t border-gray-100 pt-2.5 text-xs font-semibold text-brand-700">
+              View details
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }
@@ -672,33 +628,33 @@ function StoreTable({
   franchiseLookup: Map<string, string>;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
+    <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-soft">
       <table className="w-full text-sm">
-        <thead className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+        <thead className="border-b border-gray-100 bg-cream text-left text-xs uppercase tracking-wide text-gray-500">
           <tr>
-            <th className="px-4 py-2 font-medium">Store</th>
-            <th className="px-4 py-2 font-medium">Sub franchise</th>
-            <th className="px-4 py-2 font-medium">Lat, Lng</th>
+            <th className="px-4 py-3 font-semibold">Store</th>
+            <th className="px-4 py-3 font-semibold">Sub franchise</th>
+            <th className="px-4 py-3 font-semibold">Lat, Lng</th>
           </tr>
         </thead>
         <tbody>
           {stores.map((s) => (
-            <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
-              <td className="px-4 py-2">
-                <div className="flex items-start gap-2">
-                  <Store className="mt-0.5 h-3 w-3 shrink-0 text-gray-400" />
+            <tr key={s.id} className="border-b border-gray-50 align-top last:border-0 hover:bg-brand-50/40">
+              <td className="px-4 py-3">
+                <div className="flex items-start gap-2.5">
+                  <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                    <Store className="h-3.5 w-3.5" aria-hidden />
+                  </span>
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-gray-800">
-                      {s.store_name ?? 'Unnamed store'}
-                    </div>
+                    <div className="truncate font-medium text-ink">{s.store_name ?? 'Unnamed store'}</div>
                     <div className="font-mono text-[11px] text-gray-400">{s.store_id}</div>
                   </div>
                 </div>
               </td>
-              <td className="px-4 py-2 text-gray-600">
+              <td className="px-4 py-3 text-gray-600">
                 {franchiseLookup.get(s.franchise_id) ?? s.franchise_id.slice(-6)}
               </td>
-              <td className="px-4 py-2 text-gray-600">
+              <td className="px-4 py-3 font-mono text-gray-600">
                 {s.store_location.coordinates[1].toFixed(4)}, {s.store_location.coordinates[0].toFixed(4)}
               </td>
             </tr>

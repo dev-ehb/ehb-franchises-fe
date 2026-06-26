@@ -17,8 +17,8 @@ export interface ComplianceCheck {
 
 export function ComplianceChecklist({ checks }: { checks: ComplianceCheck[] }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-card">
-      <div className="border-b border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700">
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-soft">
+      <div className="border-b border-gray-100 px-4 py-2 text-sm font-semibold text-gray-700">
         Compliance checklist
       </div>
       <ul className="divide-y divide-gray-100">

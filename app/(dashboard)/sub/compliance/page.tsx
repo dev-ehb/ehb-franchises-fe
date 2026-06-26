@@ -72,7 +72,7 @@ export default function SubCompliancePage() {
       </div>
 
       <div
-        className={`flex items-start gap-3 rounded-xl border p-4 ${
+        className={`flex items-start gap-3 rounded-2xl border p-4 ${
           allClear
             ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
             : 'border-amber-200 bg-amber-50 text-amber-900'

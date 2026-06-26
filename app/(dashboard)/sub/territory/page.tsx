@@ -59,11 +59,11 @@ export default function SubTerritoryPage() {
         legend={
           <div className="flex flex-col gap-1">
             <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded-full border-2 border-primary-600 bg-primary-500/20" />
+              <span className="inline-block h-3 w-3 rounded-full border-2 border-brand-600 bg-brand-500/20" />
               Your territory ({franchise.radius_km} km)
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block h-3 w-3 rounded-full bg-primary-600" />
+              <span className="inline-block h-3 w-3 rounded-full bg-brand-600" />
               Linked store
             </span>
           </div>

@@ -47,8 +47,8 @@ export function Topbar({ role, email }: { role: FranchiseLevel; email?: string }
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-gray-200 bg-white px-6">
-      <div className="text-sm font-medium text-gray-700">{getLevelLabel(role)} Dashboard</div>
+    <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-6">
+      <div className="font-display text-base font-bold tracking-tight text-ink">{getLevelLabel(role)} Dashboard</div>
       <div className="flex items-center gap-4 text-gray-500">
         <button aria-label="Notifications" className="hover:text-gray-800">
           <Bell className="h-5 w-5" />
