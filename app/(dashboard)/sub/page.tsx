@@ -7,6 +7,8 @@ import {
   useRenameMyDisplayNameMutation,
 } from '@/lib/store/api/franchises.api';
 import { TerritoryMap, type MapMarker } from '@/components/map/territory-map';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import {
   ComplianceChecklist,
@@ -22,16 +24,11 @@ import { formatDate, getStatusColor } from '@/lib/utils';
  *   compliance checklist derived from territory + capacity state.
  */
 export default function SubDashboardPage() {
-  const { data, isLoading, isError, error } = useGetSubDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetSubDashboardQuery();
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load your Sub dashboard.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load your Sub dashboard." />;
   }
 
   const { franchise, stores, kpis } = data;

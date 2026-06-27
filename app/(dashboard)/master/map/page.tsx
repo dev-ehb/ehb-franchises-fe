@@ -3,6 +3,8 @@
 import { useMemo } from 'react';
 import { MapPin } from 'lucide-react';
 import { useGetMasterDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/territory-map';
 
 /**
@@ -14,7 +16,7 @@ import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/t
  * two views never disagree.
  */
 export default function MasterTerritoryMapPage() {
-  const { data, isLoading, isError, error } = useGetMasterDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetMasterDashboardQuery();
 
   const conflicts = useMemo(() => {
     if (!data?.child_subs) return new Set<string>();
@@ -38,14 +40,9 @@ export default function MasterTerritoryMapPage() {
     return flagged;
   }, [data]);
 
-  if (isLoading) return <div className="skeleton h-[32rem] w-full" />;
+  if (isLoading) return <Skeleton className="h-[32rem] w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load your territory map.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load your territory map." />;
   }
 
   const { franchise, child_subs, kpis } = data;

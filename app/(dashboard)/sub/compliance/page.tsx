@@ -2,6 +2,8 @@
 
 import { ShieldCheck, ShieldAlert } from 'lucide-react';
 import { useGetSubDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   ComplianceChecklist,
   type ComplianceCheck,
@@ -16,16 +18,11 @@ import {
  * two views can never disagree.
  */
 export default function SubCompliancePage() {
-  const { data, isLoading, isError, error } = useGetSubDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetSubDashboardQuery();
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load compliance status.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load compliance status." />;
   }
 
   const { franchise, kpis } = data;

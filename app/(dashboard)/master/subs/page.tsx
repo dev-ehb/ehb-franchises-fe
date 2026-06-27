@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Store as StoreIcon } from 'lucide-react';
 import { useGetMasterDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate, getStatusColor } from '@/lib/utils';
 
 /**
@@ -16,17 +18,12 @@ import { formatDate, getStatusColor } from '@/lib/utils';
 const SUB_MAX_STORES = 10;
 
 export default function MasterSubsPage() {
-  const { data, isLoading, isError, error } = useGetMasterDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetMasterDashboardQuery();
   const [query, setQuery] = useState('');
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load your Subs.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load your Subs." />;
   }
 
   const { child_subs, kpis } = data;
