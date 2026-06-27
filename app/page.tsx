@@ -150,7 +150,7 @@ function SiteHeader({ authedRole }: { authedRole: string | null }) {
               </Link>
               <a href="#tiers" className={CTA_PRIMARY}>
                 Become a Franchise
-              </a>
+              </a>you
             </>
           )}
         </div>
