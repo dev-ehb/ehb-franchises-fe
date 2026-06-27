@@ -1,6 +1,8 @@
 'use client';
 
 import { useGetCorporateDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TerritoryMap, type MapCircle } from '@/components/map/territory-map';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { formatDate, getStatusColor } from '@/lib/utils';
@@ -16,16 +18,11 @@ import type { Franchise } from '@/types/franchises.types';
 const STANDARD_RADIUS_KM = 10;
 
 export default function CorporateDashboardPage() {
-  const { data, isLoading, isError, error } = useGetCorporateDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetCorporateDashboardQuery();
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load your Corporate dashboard.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load your Corporate dashboard." />;
   }
 
   const { franchise, child_masters, grandchild_subs, kpis } = data;

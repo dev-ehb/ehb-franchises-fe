@@ -22,11 +22,12 @@ import { useSubmitPurchaseRequestMutation } from '@/lib/store/api/purchase-reque
 import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/territory-map';
 import { useAppSelector } from '@/lib/store/hooks';
 import { getLevelLabel, getStatusColor, formatDate } from '@/lib/utils';
+import { ErrorState } from '@/components/ui/error-state';
 import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
 
 export default function PublicFranchiseDetailPage() {
   const params = useParams<{ id: string }>();
-  const { data, isLoading, isError } = useGetCatalogDetailQuery(params.id);
+  const { data, isLoading, isError, refetch } = useGetCatalogDetailQuery(params.id);
   const auth = useAppSelector((s) => s.auth);
 
   if (isLoading) {
@@ -44,8 +45,11 @@ export default function PublicFranchiseDetailPage() {
       <main className="min-h-dvh bg-white">
         <SiteHeader authedRole={auth.role} />
         <div className="mx-auto max-w-6xl px-5 py-16 text-center sm:px-8">
-          <p className="font-display text-lg font-bold text-ink">Franchise not found.</p>
-          <Link href="/" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline">
+          <ErrorState
+            message="We could not load this franchise. Please try again."
+            onRetry={refetch}
+          />
+          <Link href="/" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline">
             <ArrowLeft className="h-4 w-4" /> Back to the network
           </Link>
         </div>

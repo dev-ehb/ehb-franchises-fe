@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react';
 import { useGetMasterDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TerritoryMap, type MapCircle } from '@/components/map/territory-map';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { formatDate, getStatusColor } from '@/lib/utils';
@@ -16,7 +18,7 @@ import type { Franchise } from '@/types/franchises.types';
  * Corporate dashboard now.
  */
 export default function MasterDashboardPage() {
-  const { data, isLoading, isError, error } = useGetMasterDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetMasterDashboardQuery();
 
   // Conflict detection: two Subs conflict if their centres are within
   // (radius_a + radius_b) * 0.5 km of each other — i.e. their circles overlap
@@ -43,14 +45,9 @@ export default function MasterDashboardPage() {
     return flagged;
   }, [data]);
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load your Master dashboard.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load your Master dashboard." />;
   }
 
   const { franchise, child_subs, kpis } = data;

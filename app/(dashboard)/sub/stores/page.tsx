@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Store as StoreIcon, Search } from 'lucide-react';
 import { useGetSubDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/lib/utils';
 
 /**
@@ -14,17 +16,12 @@ import { formatDate } from '@/lib/utils';
  * search by store id or name without leaving the page.
  */
 export default function SubStoresPage() {
-  const { data, isLoading, isError, error } = useGetSubDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetSubDashboardQuery();
   const [query, setQuery] = useState('');
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load your stores.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load your stores." />;
   }
 
   const { stores, kpis } = data;

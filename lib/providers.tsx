@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { hydrateFromStorage } from './store/auth.slice';
+import { Toaster } from '@/components/ui/toaster';
 
 /**
  * Hydrates auth from sessionStorage exactly once on the client. Lives here
@@ -23,6 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
       <AuthHydrator>{children}</AuthHydrator>
+      <Toaster />
     </Provider>
   );
 }

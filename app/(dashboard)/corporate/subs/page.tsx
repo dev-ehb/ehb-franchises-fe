@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Search, Store as StoreIcon, Network } from 'lucide-react';
 import { useGetCorporateDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate, getStatusColor } from '@/lib/utils';
 import type { Franchise } from '@/types/franchises.types';
 
@@ -18,7 +20,7 @@ import type { Franchise } from '@/types/franchises.types';
 const SUB_MAX_STORES = 10;
 
 export default function CorporateSubsPage() {
-  const { data, isLoading, isError, error } = useGetCorporateDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetCorporateDashboardQuery();
   const [query, setQuery] = useState('');
 
   const subsByMaster = useMemo(() => {
@@ -31,14 +33,9 @@ export default function CorporateSubsPage() {
     return map;
   }, [data]);
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load Sub franchises.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load Sub franchises." />;
   }
 
   const { child_masters, grandchild_subs, kpis } = data;
