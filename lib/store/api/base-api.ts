@@ -23,10 +23,11 @@ const rawBaseQuery = fetchBaseQuery({
 /**
  * Wraps the base query so error handling lives in ONE place:
  *
- *   - 401/403 with an existing session  -> clear credentials + bounce to /login.
- *     The "had a token" guard keeps the public landing/detail pages and the
- *     login form itself unaffected (they carry no token, so a 401 there never
- *     redirects).
+ *   - 401 (invalid/expired session) with an existing token -> clear credentials
+ *     + bounce to /login. The "had a token" guard keeps the public landing/detail
+ *     and login pages unaffected (no token there, so a 401 never redirects).
+ *     A 403 is left as a normal error (NOT a logout): it means "logged in but
+ *     this role can't do that", not a dead session.
  *   - network / 5xx on a MUTATION       -> a non-blocking error toast, so a
  *     failed action is never silent. Query failures are intentionally left to
  *     each page's <ErrorState> (no duplicate toast).
@@ -42,7 +43,7 @@ const baseQueryWithReauth: BaseQueryFn<
     const status = result.error.status;
 
     if (
-      (status === 401 || status === 403) &&
+      status === 401 &&
       Boolean((api.getState() as RootState).auth.access_token)
     ) {
       api.dispatch(clearCredentials());
