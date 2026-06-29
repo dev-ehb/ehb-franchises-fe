@@ -6,6 +6,8 @@ import {
   useGetPssApprovalDetailQuery,
   useDecidePssApprovalMutation,
 } from "@/lib/store/api/franchises.api";
+import { ErrorState } from "@/components/ui/error-state";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ITEM_LABELS: Record<string, string> = {
   title: "Title", description: "Description", price: "Price", category: "Category",
@@ -25,7 +27,7 @@ function isImg(key: string, value: unknown): boolean {
 type Mode = "approve" | "reject" | "changes_requested" | null;
 
 export function PssApprovalsPanel({ readOnly }: { readOnly: boolean }) {
-  const { data, isLoading, isError } = useGetPssApprovalsQuery();
+  const { data, isLoading, isError, refetch } = useGetPssApprovalsQuery();
   const [selected, setSelected] = useState<string | null>(null);
   const { data: detail } = useGetPssApprovalDetailQuery(selected ?? "", { skip: !selected });
   const [decide, { isLoading: deciding }] = useDecidePssApprovalMutation();
@@ -54,8 +56,15 @@ export function PssApprovalsPanel({ readOnly }: { readOnly: boolean }) {
     } catch { setErr("Failed to submit decision"); }
   };
 
-  if (isLoading) return <p className="text-sm text-gray-500">Loading…</p>;
-  if (isError) return <p className="text-sm text-red-600">Could not load PSS approvals.</p>;
+  if (isLoading) return <Skeleton className="h-64 w-full" />;
+  if (isError) {
+    return (
+      <ErrorState
+        message="Could not load PSS approvals. Please try again."
+        onRetry={refetch}
+      />
+    );
+  }
 
   const requests = data?.requests ?? [];
   const entityKeys = detail?.entity_data ? Object.keys(detail.entity_data) : [];

@@ -26,6 +26,7 @@ import {
 import { useGetCatalogQuery } from '@/lib/store/api/catalog.api';
 import { useAppSelector } from '@/lib/store/hooks';
 import { getStatusColor } from '@/lib/utils';
+import { ErrorState } from '@/components/ui/error-state';
 import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
 
 /**
@@ -38,7 +39,7 @@ import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
  * (map + hierarchy), and the header keeps the sign-in / dashboard shortcut.
  */
 export default function LandingPage() {
-  const { data, isLoading, isError } = useGetCatalogQuery();
+  const { data, isLoading, isError, refetch } = useGetCatalogQuery();
   const auth = useAppSelector((s) => s.auth);
 
   // Materialise as a Set once per render so per-card lookups are O(1).
@@ -60,6 +61,7 @@ export default function LandingPage() {
         pendingIds={pendingIds}
         isLoading={isLoading}
         isError={isError}
+        onRetry={refetch}
       />
       <StatsBand counts={data?.counts} />
       <Insights />
@@ -700,11 +702,13 @@ function LiveNetwork({
   pendingIds,
   isLoading,
   isError,
+  onRetry,
 }: {
   data: ReturnType<typeof useGetCatalogQuery>['data'];
   pendingIds: Set<string>;
   isLoading: boolean;
   isError: boolean;
+  onRetry: () => void;
 }) {
   return (
     <section id="network" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
@@ -737,9 +741,10 @@ function LiveNetwork({
           </div>
         )}
         {isError && (
-          <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-6 text-sm text-red-700">
-            Could not load the catalog. Is the franchises API running on port 3010?
-          </div>
+          <ErrorState
+            message="Could not load the network right now. Please try again."
+            onRetry={onRetry}
+          />
         )}
 
         {data && (
