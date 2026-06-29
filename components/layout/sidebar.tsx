@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
-  LayoutDashboard, Store, Map, ClipboardCheck, BarChart3, PanelLeftClose, PanelLeftOpen, Network,
+  LayoutDashboard, Store, Map, ClipboardCheck, BarChart3, PanelLeftClose, PanelLeftOpen, Network, Globe,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FranchiseLevel } from '@/types/franchises.types';
@@ -27,10 +27,15 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Territory Map', href: '/master/map', icon: Map, roles: ['master'] },
   { label: 'Reports', href: '/master/reports', icon: BarChart3, roles: ['master'] },
   { label: 'PSS Approvals', href: '/master/pss-approvals', icon: ClipboardCheck, roles: ['master'] },
+  { label: 'Overview', href: '/country', icon: LayoutDashboard, roles: ['country'] },
+  { label: 'Corporate Franchises', href: '/country/corporates', icon: Network, roles: ['country'] },
+  { label: 'Country Map', href: '/country/map', icon: Globe, roles: ['country'] },
+  { label: 'Reports', href: '/country/reports', icon: BarChart3, roles: ['country'] },
+  { label: 'PSS Approvals', href: '/country/pss-approvals', icon: ClipboardCheck, roles: ['country'] },
 ];
 
 const ROLE_LABEL: Record<FranchiseLevel, string> = {
-  sub: 'Sub Franchise', master: 'Master Franchise', corporate: 'Corporate Franchise',
+  sub: 'Sub Franchise', master: 'Master Franchise', corporate: 'Corporate Franchise', country: 'Country Franchise',
 };
 
 export function Sidebar({ role }: { role: FranchiseLevel }) {

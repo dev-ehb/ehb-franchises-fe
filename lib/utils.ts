@@ -39,3 +39,15 @@ export function getStatusColor(status: FranchiseStatus | string): string {
   };
   return map[status] ?? 'bg-gray-100 text-gray-600';
 }
+
+/** ISO 3166-1 alpha-2 -> English country name (e.g. "PK" -> "Pakistan"). */
+export function countryName(iso2: string): string {
+  const code = (iso2 ?? '').toUpperCase().trim();
+  if (!/^[A-Z]{2}$/.test(code)) return iso2;
+  try {
+    const name = new Intl.DisplayNames(['en'], { type: 'region' }).of(code);
+    return name && name !== code && !/^Unknown/i.test(name) ? name : code;
+  } catch {
+    return code;
+  }
+}

@@ -1,7 +1,7 @@
 // ─── ehb-franchises frontend types ────────────────────────────────────────────
 // Mirrors the backend libs/franchises-types contract for the parts the UI needs.
 
-export type FranchiseLevel = 'sub' | 'corporate' | 'master';
+export type FranchiseLevel = 'sub' | 'corporate' | 'master' | 'country';
 
 export type FranchiseStatus = 'Auto-Created' | 'Available' | 'Assigned' | 'Active';
 
@@ -100,13 +100,30 @@ export interface CorporateDashboardData {
   };
 }
 
+/**
+ * Country is the tree root — it owns every Corporate in the country and rolls
+ * up the Master / Sub / store counts beneath them.
+ */
+export interface CountryDashboardData {
+  franchise: Franchise;
+  child_corporates: Franchise[];
+  kpis: {
+    corporate_count: number;
+    master_count: number;
+    sub_count: number;
+    total_stores: number;
+    active_corporates: number;
+  };
+}
+
 // ─── Public catalog payloads (match backend CatalogService) ───────────────────
 
 export interface CatalogListPayload {
+  country: Franchise[];
   master: Franchise[];
   corporate: Franchise[];
   sub: Franchise[];
-  counts: { master: number; corporate: number; sub: number; total: number };
+  counts: { country: number; master: number; corporate: number; sub: number; total: number };
   /** Franchise _ids with an in-flight purchase request — used to badge cards. */
   pending_request_franchise_ids: string[];
 }
@@ -115,6 +132,7 @@ export interface CatalogDetailPayload {
   franchise: Franchise;
   /** Ordered from immediate parent up to the root. Empty for a Corporate. */
   parents: Franchise[];
+  child_corporates?: Franchise[];
   child_masters: Franchise[];
   child_subs: Franchise[];
   stores: StoreLink[];

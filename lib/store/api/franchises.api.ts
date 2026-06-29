@@ -4,6 +4,7 @@ import type {
   SubDashboardData,
   CorporateDashboardData,
   MasterDashboardData,
+  CountryDashboardData,
 } from '@/types/franchises.types';
 
 /**
@@ -27,6 +28,10 @@ export const franchisesApi = baseApi.injectEndpoints({
     }),
     getMasterDashboard: build.query<MasterDashboardData, void>({
       query: () => '/dashboard/master',
+      providesTags: ['Dashboard'],
+    }),
+    getCountryDashboard: build.query<CountryDashboardData, void>({
+      query: () => '/dashboard/country',
       providesTags: ['Dashboard'],
     }),
     /**
@@ -88,6 +93,7 @@ export const {
   useGetSubDashboardQuery,
   useGetCorporateDashboardQuery,
   useGetMasterDashboardQuery,
+  useGetCountryDashboardQuery,
   useRenameMyDisplayNameMutation,
   useGetPssApprovalsQuery,
   useGetPssApprovalDetailQuery,
