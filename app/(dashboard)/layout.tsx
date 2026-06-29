@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
@@ -21,6 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const dispatch = useAppDispatch();
   const auth = useAppSelector((s) => s.auth);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Re-populate auth from sessionStorage exactly once after the first paint.
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!auth.hydrated || !auth.role) {
     return (
       <div className="flex h-screen overflow-hidden">
-        <aside className="w-[230px] border-r border-gray-100 bg-white" />
+        <aside className="hidden w-[230px] border-r border-gray-100 bg-white lg:block" />
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="h-16 border-b border-gray-100 bg-white" />
           <main className="relative flex-1 overflow-y-auto bg-[#f6f8f6] p-6" />
@@ -53,9 +54,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar role={auth.role} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar role={auth.role} email={auth.user?.email} />
+      <Sidebar
+        role={auth.role}
+        mobileOpen={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
+      />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <Topbar
+          role={auth.role}
+          email={auth.user?.email}
+          onMenuClick={() => setMobileNavOpen(true)}
+        />
         <main className="relative flex-1 overflow-y-auto bg-[#f6f8f6] p-6 md:p-8">{children}</main>
       </div>
     </div>

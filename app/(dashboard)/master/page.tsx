@@ -134,39 +134,72 @@ function SubsTable({ subs, conflicts }: { subs: Franchise[]; conflicts: Set<stri
           No Sub franchises yet. They appear here as new ones get auto-created in your region.
         </div>
       ) : (
-        <table className="w-full text-sm">
-          <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
-            <tr>
-              <th className="px-4 py-2 font-medium">Name</th>
-              <th className="px-4 py-2 font-medium">Stores</th>
-              <th className="px-4 py-2 font-medium">Radius</th>
-              <th className="px-4 py-2 font-medium">Status</th>
-              <th className="px-4 py-2 font-medium">Created</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {/* Desktop table (lg and up) */}
+          <table className="hidden w-full text-sm lg:table">
+            <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
+              <tr>
+                <th className="px-4 py-2 font-medium">Name</th>
+                <th className="px-4 py-2 font-medium">Stores</th>
+                <th className="px-4 py-2 font-medium">Radius</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subs.map((s) => (
+                <tr key={s.id} className="border-b border-gray-100 last:border-0">
+                  <td className="px-4 py-2 text-gray-800">
+                    {s.name}
+                    {conflicts.has(s.id) && (
+                      <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">
+                        conflict
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-gray-600">{s.store_count}</td>
+                  <td className="px-4 py-2 text-gray-600">{s.radius_km} km</td>
+                  <td className="px-4 py-2">
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(s.status)}`}>
+                      {s.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-gray-500">{formatDate(s.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Mobile / tablet stacked cards (below lg) — same data, no clipping */}
+          <ul className="divide-y divide-gray-100 lg:hidden">
             {subs.map((s) => (
-              <tr key={s.id} className="border-b border-gray-100 last:border-0">
-                <td className="px-4 py-2 text-gray-800">
-                  {s.name}
+              <li key={s.id} className="px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-gray-800">{s.name}</span>
                   {conflicts.has(s.id) && (
-                    <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">
+                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">
                       conflict
                     </span>
                   )}
-                </td>
-                <td className="px-4 py-2 text-gray-600">{s.store_count}</td>
-                <td className="px-4 py-2 text-gray-600">{s.radius_km} km</td>
-                <td className="px-4 py-2">
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(s.status)}`}>
-                    {s.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 text-gray-500">{formatDate(s.created_at)}</td>
-              </tr>
+                </div>
+                <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                  <dt className="text-gray-400">Stores</dt>
+                  <dd className="text-gray-600">{s.store_count}</dd>
+                  <dt className="text-gray-400">Radius</dt>
+                  <dd className="text-gray-600">{s.radius_km} km</dd>
+                  <dt className="text-gray-400">Status</dt>
+                  <dd>
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(s.status)}`}>
+                      {s.status}
+                    </span>
+                  </dd>
+                  <dt className="text-gray-400">Created</dt>
+                  <dd className="text-gray-500">{formatDate(s.created_at)}</dd>
+                </dl>
+              </li>
             ))}
-          </tbody>
-        </table>
+          </ul>
+        </>
       )}
     </div>
   );

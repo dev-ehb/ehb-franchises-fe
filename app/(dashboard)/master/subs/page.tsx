@@ -75,66 +75,120 @@ export default function MasterSubsPage() {
               : 'No Subs match the current filter.'}
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
-              <tr>
-                <th className="px-4 py-2 font-medium">Sub</th>
-                <th className="px-4 py-2 font-medium">Stores</th>
-                <th className="px-4 py-2 font-medium">Capacity</th>
-                <th className="px-4 py-2 font-medium">Radius</th>
-                <th className="px-4 py-2 font-medium">Status</th>
-                <th className="px-4 py-2 font-medium">Created</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Desktop table (lg and up) */}
+            <table className="hidden w-full text-sm lg:table">
+              <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Sub</th>
+                  <th className="px-4 py-2 font-medium">Stores</th>
+                  <th className="px-4 py-2 font-medium">Capacity</th>
+                  <th className="px-4 py-2 font-medium">Radius</th>
+                  <th className="px-4 py-2 font-medium">Status</th>
+                  <th className="px-4 py-2 font-medium">Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((s) => {
+                  const pct = Math.min(
+                    100,
+                    Math.round((s.store_count / SUB_MAX_STORES) * 100),
+                  );
+                  return (
+                    <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
+                      <td className="px-4 py-2">
+                        <Link
+                          href={`/franchises/${s.id}`}
+                          className="block text-sm font-medium text-gray-800 hover:text-brand-700"
+                        >
+                          {s.display_name ?? s.name}
+                        </Link>
+                        {s.code && (
+                          <span className="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
+                            {s.code}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 text-gray-700">{s.store_count}</td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
+                            <div
+                              className={
+                                pct >= 90
+                                  ? 'h-full bg-amber-500'
+                                  : 'h-full bg-brand-500'
+                              }
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-500">{pct}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 text-gray-600">{s.radius_km} km</td>
+                      <td className="px-4 py-2">
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(s.status)}`}>
+                          {s.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-gray-500">{formatDate(s.created_at)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Mobile / tablet stacked cards (below lg) — same data, no clipping */}
+            <ul className="divide-y divide-gray-100 lg:hidden">
               {visible.map((s) => {
                 const pct = Math.min(
                   100,
                   Math.round((s.store_count / SUB_MAX_STORES) * 100),
                 );
                 return (
-                  <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
-                    <td className="px-4 py-2">
-                      <Link
-                        href={`/franchises/${s.id}`}
-                        className="block text-sm font-medium text-gray-800 hover:text-brand-700"
-                      >
-                        {s.display_name ?? s.name}
-                      </Link>
-                      {s.code && (
-                        <span className="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
-                          {s.code}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 text-gray-700">{s.store_count}</td>
-                    <td className="px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
-                          <div
-                            className={
-                              pct >= 90
-                                ? 'h-full bg-amber-500'
-                                : 'h-full bg-brand-500'
-                            }
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-gray-500">{pct}%</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 text-gray-600">{s.radius_km} km</td>
-                    <td className="px-4 py-2">
-                      <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(s.status)}`}>
-                        {s.status}
+                  <li key={s.id} className="px-4 py-3">
+                    <Link
+                      href={`/franchises/${s.id}`}
+                      className="block text-sm font-medium text-gray-800 hover:text-brand-700"
+                    >
+                      {s.display_name ?? s.name}
+                    </Link>
+                    {s.code && (
+                      <span className="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
+                        {s.code}
                       </span>
-                    </td>
-                    <td className="px-4 py-2 text-gray-500">{formatDate(s.created_at)}</td>
-                  </tr>
+                    )}
+                    <dl className="mt-2 grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 text-xs">
+                      <dt className="text-gray-400">Stores</dt>
+                      <dd className="text-gray-700">{s.store_count}</dd>
+                      <dt className="text-gray-400">Capacity</dt>
+                      <dd>
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
+                            <div
+                              className={pct >= 90 ? 'h-full bg-amber-500' : 'h-full bg-brand-500'}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <span className="text-gray-500">{pct}%</span>
+                        </div>
+                      </dd>
+                      <dt className="text-gray-400">Radius</dt>
+                      <dd className="text-gray-600">{s.radius_km} km</dd>
+                      <dt className="text-gray-400">Status</dt>
+                      <dd>
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(s.status)}`}>
+                          {s.status}
+                        </span>
+                      </dd>
+                      <dt className="text-gray-400">Created</dt>
+                      <dd className="text-gray-500">{formatDate(s.created_at)}</dd>
+                    </dl>
+                  </li>
                 );
               })}
-            </tbody>
-          </table>
+            </ul>
+          </>
         )}
       </div>
     </div>

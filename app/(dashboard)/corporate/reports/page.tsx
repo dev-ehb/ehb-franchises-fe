@@ -250,62 +250,110 @@ function PerMasterTable({
           No Masters yet - they appear here once stores start landing in this territory.
         </div>
       ) : (
-        <table className="w-full text-sm">
-          <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
-            <tr>
-              <th className="px-4 py-2 font-medium">Master</th>
-              <th className="px-4 py-2 font-medium">Subs</th>
-              <th className="px-4 py-2 font-medium">Stores</th>
-              <th className="px-4 py-2 font-medium">Utilisation</th>
-              <th className="px-4 py-2 font-medium">Status</th>
-              <th className="px-4 py-2 font-medium">Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(({ master, subs, stores, capacity, util }) => (
-              <tr key={master.id} className="border-b border-gray-100 last:border-0 align-top">
-                <td className="px-4 py-2">
-                  <Link
-                    href={`/franchises/${master.id}`}
-                    className="block text-sm font-medium text-gray-800 hover:text-brand-700"
-                  >
-                    {master.display_name ?? master.name}
-                  </Link>
-                  {master.code && (
-                    <span className="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
-                      {master.code}
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-2 text-gray-700">{subs.length}</td>
-                <td className="px-4 py-2 text-gray-700">{stores}</td>
-                <td className="px-4 py-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-32 overflow-hidden rounded-full bg-gray-100">
-                      <div
-                        className={
-                          util >= 90 ? 'h-full bg-amber-500' : 'h-full bg-brand-500'
-                        }
-                        style={{ width: `${util}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-500">
-                      {stores}/{capacity}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(master.status)}`}
-                  >
-                    {master.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 text-gray-500">{formatDate(master.created_at)}</td>
+        <>
+          {/* Desktop table (lg and up) */}
+          <table className="hidden w-full text-sm lg:table">
+            <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
+              <tr>
+                <th className="px-4 py-2 font-medium">Master</th>
+                <th className="px-4 py-2 font-medium">Subs</th>
+                <th className="px-4 py-2 font-medium">Stores</th>
+                <th className="px-4 py-2 font-medium">Utilisation</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium">Created</th>
               </tr>
+            </thead>
+            <tbody>
+              {rows.map(({ master, subs, stores, capacity, util }) => (
+                <tr key={master.id} className="border-b border-gray-100 last:border-0 align-top">
+                  <td className="px-4 py-2">
+                    <Link
+                      href={`/franchises/${master.id}`}
+                      className="block text-sm font-medium text-gray-800 hover:text-brand-700"
+                    >
+                      {master.display_name ?? master.name}
+                    </Link>
+                    {master.code && (
+                      <span className="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
+                        {master.code}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-gray-700">{subs.length}</td>
+                  <td className="px-4 py-2 text-gray-700">{stores}</td>
+                  <td className="px-4 py-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-32 overflow-hidden rounded-full bg-gray-100">
+                        <div
+                          className={
+                            util >= 90 ? 'h-full bg-amber-500' : 'h-full bg-brand-500'
+                          }
+                          style={{ width: `${util}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {stores}/{capacity}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(master.status)}`}
+                    >
+                      {master.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-gray-500">{formatDate(master.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Mobile / tablet stacked cards (below lg) — same data, no clipping */}
+          <ul className="divide-y divide-gray-100 lg:hidden">
+            {rows.map(({ master, subs, stores, capacity, util }) => (
+              <li key={master.id} className="px-4 py-3">
+                <Link
+                  href={`/franchises/${master.id}`}
+                  className="block text-sm font-medium text-gray-800 hover:text-brand-700"
+                >
+                  {master.display_name ?? master.name}
+                </Link>
+                {master.code && (
+                  <span className="mt-0.5 inline-block rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
+                    {master.code}
+                  </span>
+                )}
+                <dl className="mt-2 grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 text-xs">
+                  <dt className="text-gray-400">Subs</dt>
+                  <dd className="text-gray-700">{subs.length}</dd>
+                  <dt className="text-gray-400">Stores</dt>
+                  <dd className="text-gray-700">{stores}</dd>
+                  <dt className="text-gray-400">Utilisation</dt>
+                  <dd>
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-32 overflow-hidden rounded-full bg-gray-100">
+                        <div
+                          className={util >= 90 ? 'h-full bg-amber-500' : 'h-full bg-brand-500'}
+                          style={{ width: `${util}%` }}
+                        />
+                      </div>
+                      <span className="text-gray-500">{stores}/{capacity}</span>
+                    </div>
+                  </dd>
+                  <dt className="text-gray-400">Status</dt>
+                  <dd>
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(master.status)}`}>
+                      {master.status}
+                    </span>
+                  </dd>
+                  <dt className="text-gray-400">Created</dt>
+                  <dd className="text-gray-500">{formatDate(master.created_at)}</dd>
+                </dl>
+              </li>
             ))}
-          </tbody>
-        </table>
+          </ul>
+        </>
       )}
     </div>
   );

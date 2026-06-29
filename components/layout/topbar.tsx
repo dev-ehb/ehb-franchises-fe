@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, ChevronDown, LogOut, Settings, UserCircle } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Menu, Settings, UserCircle } from 'lucide-react';
 import { getLevelLabel } from '@/lib/utils';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { clearCredentials } from '@/lib/store/auth.slice';
@@ -16,7 +16,7 @@ import type { FranchiseLevel } from '@/types/franchises.types';
  * out). Click-outside + Escape close it. Logout clears credentials (which
  * also wipes sessionStorage) and routes to /login.
  */
-export function Topbar({ role, email }: { role: FranchiseLevel; email?: string }) {
+export function Topbar({ role, email, onMenuClick }: { role: FranchiseLevel; email?: string; onMenuClick: () => void }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
@@ -47,9 +47,19 @@ export function Topbar({ role, email }: { role: FranchiseLevel; email?: string }
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-6">
-      <div className="font-display text-base font-bold tracking-tight text-ink">{getLevelLabel(role)} Dashboard</div>
-      <div className="flex items-center gap-4 text-gray-500">
+    <header className="flex h-16 items-center justify-between gap-2 border-b border-gray-100 bg-white px-4 sm:px-6">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-gray-500 hover:bg-gray-100 lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="truncate font-display text-base font-bold tracking-tight text-ink">{getLevelLabel(role)} Dashboard</div>
+      </div>
+      <div className="flex shrink-0 items-center gap-3 text-gray-500 sm:gap-4">
         <button aria-label="Notifications" className="hover:text-gray-800">
           <Bell className="h-5 w-5" />
         </button>
@@ -66,7 +76,7 @@ export function Topbar({ role, email }: { role: FranchiseLevel; email?: string }
             aria-expanded={open}
           >
             <UserCircle className="h-6 w-6" />
-            <span className="max-w-[160px] truncate">{email ?? 'Franchise Owner'}</span>
+            <span className="hidden max-w-[160px] truncate sm:inline">{email ?? 'Franchise Owner'}</span>
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`}
             />

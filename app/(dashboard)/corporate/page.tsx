@@ -132,49 +132,86 @@ function BrandStandardisationMatrix({
           escalation threshold.
         </div>
       ) : (
-        <table className="w-full text-sm">
-          <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
-            <tr>
-              <th className="px-4 py-2 font-medium">Master</th>
-              <th className="px-4 py-2 font-medium">Subs</th>
-              <th className="px-4 py-2 font-medium">Stores</th>
-              <th className="px-4 py-2 font-medium">Standardised</th>
-              <th className="px-4 py-2 font-medium">Status</th>
-              <th className="px-4 py-2 font-medium">Created</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {/* Desktop table (lg and up) */}
+          <table className="hidden w-full text-sm lg:table">
+            <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
+              <tr>
+                <th className="px-4 py-2 font-medium">Master</th>
+                <th className="px-4 py-2 font-medium">Subs</th>
+                <th className="px-4 py-2 font-medium">Stores</th>
+                <th className="px-4 py-2 font-medium">Standardised</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {masters.map((m) => {
+                const subs = subsByParent[m.id] ?? [];
+                const nonStandard = subs.filter((s) => s.radius_km !== STANDARD_RADIUS_KM).length;
+                const totalStores = subs.reduce((sum, s) => sum + s.store_count, 0);
+                return (
+                  <tr key={m.id} className="border-b border-gray-100 last:border-0">
+                    <td className="px-4 py-2 text-gray-800">{m.name}</td>
+                    <td className="px-4 py-2 text-gray-600">{subs.length}</td>
+                    <td className="px-4 py-2 text-gray-600">{totalStores}</td>
+                    <td className="px-4 py-2">
+                      {nonStandard === 0 ? (
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                          all on standard
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                          {nonStandard} non-standard
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(m.status)}`}>
+                        {m.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-gray-500">{formatDate(m.created_at)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {/* Mobile / tablet stacked cards (below lg) — same data, no clipping */}
+          <ul className="divide-y divide-gray-100 lg:hidden">
             {masters.map((m) => {
               const subs = subsByParent[m.id] ?? [];
               const nonStandard = subs.filter((s) => s.radius_km !== STANDARD_RADIUS_KM).length;
               const totalStores = subs.reduce((sum, s) => sum + s.store_count, 0);
               return (
-                <tr key={m.id} className="border-b border-gray-100 last:border-0">
-                  <td className="px-4 py-2 text-gray-800">{m.name}</td>
-                  <td className="px-4 py-2 text-gray-600">{subs.length}</td>
-                  <td className="px-4 py-2 text-gray-600">{totalStores}</td>
-                  <td className="px-4 py-2">
-                    {nonStandard === 0 ? (
-                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
-                        all on standard
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-                        {nonStandard} non-standard
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(m.status)}`}>
-                      {m.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 text-gray-500">{formatDate(m.created_at)}</td>
-                </tr>
+                <li key={m.id} className="px-4 py-3">
+                  <div className="text-sm font-medium text-gray-800">{m.name}</div>
+                  <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                    <dt className="text-gray-400">Subs</dt>
+                    <dd className="text-gray-600">{subs.length}</dd>
+                    <dt className="text-gray-400">Stores</dt>
+                    <dd className="text-gray-600">{totalStores}</dd>
+                    <dt className="text-gray-400">Standardised</dt>
+                    <dd>
+                      {nonStandard === 0 ? (
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">all on standard</span>
+                      ) : (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">{nonStandard} non-standard</span>
+                      )}
+                    </dd>
+                    <dt className="text-gray-400">Status</dt>
+                    <dd>
+                      <span className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(m.status)}`}>{m.status}</span>
+                    </dd>
+                    <dt className="text-gray-400">Created</dt>
+                    <dd className="text-gray-500">{formatDate(m.created_at)}</dd>
+                  </dl>
+                </li>
               );
             })}
-          </tbody>
-        </table>
+          </ul>
+        </>
       )}
     </div>
   );
