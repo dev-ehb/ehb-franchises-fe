@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Building2,
+  Globe,
   ChevronRight,
   Clock,
   Crown,
@@ -23,7 +24,7 @@ import { useGetCatalogDetailQuery } from '@/lib/store/api/catalog.api';
 import { useSubmitPurchaseRequestMutation } from '@/lib/store/api/purchase-requests.api';
 import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/territory-map';
 import { useAppSelector } from '@/lib/store/hooks';
-import { getLevelLabel, getStatusColor, formatDate } from '@/lib/utils';
+import { getLevelLabel, getStatusColor, formatDate, countryName } from '@/lib/utils';
 import { ErrorState } from '@/components/ui/error-state';
 import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
 
@@ -186,7 +187,7 @@ export default function PublicFranchiseDetailPage() {
                     {centerLatLng[0].toFixed(4)}, {centerLatLng[1].toFixed(4)}
                   </span>
                 </span>
-                <span>Region: <span className="font-semibold text-ink">{franchise.region}</span></span>
+                <span>Region: <span className="font-semibold text-ink">{franchise.level === 'country' ? `${franchise.region} · ${countryName(franchise.region)}` : franchise.region}</span></span>
                 {franchise.level === 'sub' && franchise.radius_km > 0 && (
                   <span>Radius: <span className="font-semibold text-ink">{franchise.radius_km} km</span></span>
                 )}
@@ -300,6 +301,7 @@ export default function PublicFranchiseDetailPage() {
 // ── tokens ──────────────────────────────────────────────────────────────────
 
 const LEVEL_TONE: Record<FranchiseLevel, { wrap: string; bar: string; icon: React.ElementType }> = {
+  country: { wrap: 'bg-emerald-50 text-emerald-700', bar: 'bg-emerald-600', icon: Globe },
   corporate: { wrap: 'bg-brand-50 text-brand-700', bar: 'bg-brand-600', icon: Crown },
   master: { wrap: 'bg-lav-soft text-lav-ink', bar: 'bg-lav', icon: Network },
   sub: { wrap: 'bg-coral-soft text-coral-ink', bar: 'bg-coral', icon: Building2 },

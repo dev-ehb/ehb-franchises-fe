@@ -827,12 +827,13 @@ function LiveNetwork({
             Explore every franchise on the map
           </h2>
           <p className="mt-4 text-base text-gray-600">
-            Browse real Corporate, Master and Sub franchises across the network.
+            Browse real Country, Corporate, Master and Sub franchises across the network.
             Open any card to see its territory on the map and its full hierarchy.
           </p>
         </div>
         {data && (
           <div className="flex shrink-0 flex-wrap gap-2">
+            <CountChip icon={Globe} label="Country" value={data.counts.country} />
             <CountChip icon={Crown} label="Corporate" value={data.counts.corporate} />
             <CountChip icon={Network} label="Master" value={data.counts.master} />
             <CountChip icon={Building2} label="Sub" value={data.counts.sub} />
@@ -858,8 +859,16 @@ function LiveNetwork({
         {data && (
           <>
             <FranchiseGroup
+              title="Country Franchises"
+              subtitle="Root of the network — one per country. Owns every Corporate, Master and Sub inside that country."
+              icon={Globe}
+              level="country"
+              franchises={data.country}
+              pendingIds={pendingIds}
+            />
+            <FranchiseGroup
               title="Corporate Franchises"
-              subtitle="Top of the hierarchy — one per territory. Owns every Master and Sub inside its area."
+              subtitle="One per territory. Owns every Master and Sub inside its area."
               icon={Crown}
               level="corporate"
               franchises={data.corporate}
@@ -907,6 +916,7 @@ function CountChip({
 }
 
 const LEVEL_TONE: Record<FranchiseLevel, { wrap: string; icon: React.ElementType }> = {
+  country: { wrap: 'bg-emerald-50 text-emerald-700', icon: Globe },
   corporate: { wrap: 'bg-brand-50 text-brand-700', icon: Crown },
   master: { wrap: 'bg-lav-soft text-lav-ink', icon: Network },
   sub: { wrap: 'bg-coral-soft text-coral-ink', icon: Building2 },
