@@ -530,7 +530,6 @@ type Tier = {
   scope: string;
   features: string[];
   cta: string;
-  featured?: boolean;
 };
 
 const TIERS: Tier[] = [
@@ -563,7 +562,6 @@ const TIERS: Tier[] = [
       'Dedicated success manager',
     ],
     cta: 'Apply for a Master',
-    featured: true,
   },
   {
     level: 'corporate',
@@ -580,6 +578,21 @@ const TIERS: Tier[] = [
     ],
     cta: 'Talk to our team',
   },
+  {
+    level: 'country',
+    name: 'Country Franchise',
+    icon: Globe,
+    tagline: 'The national owner',
+    scope: 'One per country · owns all below',
+    features: [
+      'Nationwide exclusive rights',
+      'Owns every Corporate, Master & Sub',
+      'Country-level revenue overrides',
+      'National multi-region dashboards',
+      'Executive partnership support',
+    ],
+    cta: 'Talk to our team',
+  },
 ];
 
 function TierShowcase() {
@@ -589,7 +602,7 @@ function TierShowcase() {
         <div className="mx-auto max-w-2xl text-center">
           <Eyebrow>The Network</Eyebrow>
           <h2 className="mt-3 font-display text-3xl font-extrabold leading-tight tracking-tight text-ink sm:text-4xl">
-            Three ways to own the EHB network
+            Four ways to own the EHB network
           </h2>
           <p className="mt-4 text-base text-gray-600">
             From a single neighbourhood to a whole territory — pick the tier that
@@ -597,7 +610,7 @@ function TierShowcase() {
           </p>
         </div>
 
-        <div className="mt-12 grid items-start gap-5 lg:grid-cols-3">
+        <div className="mt-12 grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {TIERS.map((t) => (
             <TierCard key={t.level} tier={t} />
           ))}
@@ -614,60 +627,30 @@ function TierShowcase() {
 }
 
 function TierCard({ tier }: { tier: Tier }) {
-  const { icon: Icon, featured } = tier;
-  if (featured) {
-    return (
-      <div className="relative overflow-hidden rounded-4xl bg-brand-900 p-7 text-white shadow-float ring-1 ring-brand-800 lg:-mt-4 lg:pb-9">
-        <span className="absolute right-6 top-6 rounded-full bg-brand-700/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-100">
-          Most popular
-        </span>
-        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-700 text-white">
-          <Icon className="h-6 w-6" aria-hidden />
-        </span>
-        <h3 className="mt-5 font-display text-2xl font-extrabold">{tier.name}</h3>
-        <p className="mt-1 text-sm text-brand-200">{tier.tagline}</p>
-        <p className="mt-4 inline-flex rounded-full bg-brand-800 px-3 py-1 text-xs font-medium text-brand-100">
-          {tier.scope}
-        </p>
-        <ul className="mt-6 space-y-3">
-          {tier.features.map((f) => (
-            <li key={f} className="flex items-start gap-2.5 text-sm text-brand-50">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" aria-hidden />
-              {f}
-            </li>
-          ))}
-        </ul>
-        <a
-          href="#network"
-          className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand-900 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-900"
-        >
-          {tier.cta}
-          <ArrowRight className="h-4 w-4" aria-hidden />
-        </a>
-      </div>
-    );
-  }
+  const { icon: Icon } = tier;
+  // Uniform card: white by default, flips to the brand-green look on hover
+  // (group-hover) — so every tier gets the same emphasis on interaction.
   return (
-    <div className="rounded-4xl border border-gray-100 bg-white p-7 shadow-soft transition-shadow hover:shadow-lift">
-      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-600">
+    <div className="group flex flex-col rounded-4xl border border-gray-100 bg-white p-7 shadow-soft transition-all duration-200 hover:border-brand-800 hover:bg-brand-900 hover:shadow-float">
+      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-700 group-hover:text-white">
         <Icon className="h-6 w-6" aria-hidden />
       </span>
-      <h3 className="mt-5 font-display text-2xl font-extrabold text-ink">{tier.name}</h3>
-      <p className="mt-1 text-sm text-gray-500">{tier.tagline}</p>
-      <p className="mt-4 inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+      <h3 className="mt-5 font-display text-2xl font-extrabold text-ink transition-colors group-hover:text-white">{tier.name}</h3>
+      <p className="mt-1 text-sm text-gray-500 transition-colors group-hover:text-brand-200">{tier.tagline}</p>
+      <p className="mt-4 inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 transition-colors group-hover:bg-brand-800 group-hover:text-brand-100">
         {tier.scope}
       </p>
-      <ul className="mt-6 space-y-3">
+      <ul className="mt-6 grow space-y-3">
         {tier.features.map((f) => (
-          <li key={f} className="flex items-start gap-2.5 text-sm text-gray-700">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" aria-hidden />
+          <li key={f} className="flex items-start gap-2.5 text-sm text-gray-700 transition-colors group-hover:text-brand-50">
+            <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600 transition-colors group-hover:text-emerald-300" aria-hidden />
             {f}
           </li>
         ))}
       </ul>
       <a
         href="#network"
-        className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-200 px-5 py-3 text-sm font-semibold text-brand-800 transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+        className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full border border-brand-200 px-5 py-3 text-sm font-semibold text-brand-800 transition-colors group-hover:border-white group-hover:bg-white group-hover:text-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
       >
         {tier.cta}
         <ArrowRight className="h-4 w-4" aria-hidden />
@@ -833,7 +816,7 @@ function LiveNetwork({
         </div>
         {data && (
           <div className="flex shrink-0 flex-wrap gap-2">
-            <CountChip icon={Globe} label="Country" value={data.counts.country} />
+            <CountChip icon={Globe} label="Country" value={data.counts.country ?? 0} />
             <CountChip icon={Crown} label="Corporate" value={data.counts.corporate} />
             <CountChip icon={Network} label="Master" value={data.counts.master} />
             <CountChip icon={Building2} label="Sub" value={data.counts.sub} />
@@ -863,7 +846,7 @@ function LiveNetwork({
               subtitle="Root of the network — one per country. Owns every Corporate, Master and Sub inside that country."
               icon={Globe}
               level="country"
-              franchises={data.country}
+              franchises={data.country ?? []}
               pendingIds={pendingIds}
             />
             <FranchiseGroup
