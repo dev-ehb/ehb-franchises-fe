@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Building2,
   Clock,
@@ -22,10 +22,13 @@ import {
   Map as MapIcon,
   Wallet,
   Phone,
+  Menu,
+  X,
 } from 'lucide-react';
 import { useGetCatalogQuery } from '@/lib/store/api/catalog.api';
 import { useAppSelector } from '@/lib/store/hooks';
 import { getStatusColor } from '@/lib/utils';
+import { ErrorState } from '@/components/ui/error-state';
 import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
 
 /**
@@ -38,7 +41,7 @@ import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
  * (map + hierarchy), and the header keeps the sign-in / dashboard shortcut.
  */
 export default function LandingPage() {
-  const { data, isLoading, isError } = useGetCatalogQuery();
+  const { data, isLoading, isError, refetch } = useGetCatalogQuery();
   const auth = useAppSelector((s) => s.auth);
 
   // Materialise as a Set once per render so per-card lookups are O(1).
@@ -60,6 +63,7 @@ export default function LandingPage() {
         pendingIds={pendingIds}
         isLoading={isLoading}
         isError={isError}
+        onRetry={refetch}
       />
       <StatsBand counts={data?.counts} />
       <Insights />
@@ -96,6 +100,7 @@ function Pill({ children }: { children: React.ReactNode }) {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 function SiteHeader({ authedRole }: { authedRole: string | null }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const nav = [
     { label: 'The Network', href: '#network' },
     { label: 'Tiers', href: '#tiers' },
@@ -103,6 +108,7 @@ function SiteHeader({ authedRole }: { authedRole: string | null }) {
     { label: 'Insights', href: '#insights' },
   ];
   return (
+    <>
     <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
         <Link
@@ -115,7 +121,8 @@ function SiteHeader({ authedRole }: { authedRole: string | null }) {
           EHB<span className="text-brand-600">Franchises</span>
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex" aria-label="Primary">
+        {/* Desktop nav (lg and up) */}
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary">
           {nav.map((n) => (
             <a
               key={n.href}
@@ -127,10 +134,11 @@ function SiteHeader({ authedRole }: { authedRole: string | null }) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2.5">
+        {/* Desktop actions (lg and up) */}
+        <div className="hidden items-center gap-2.5 lg:flex">
           <a
             href="tel:+18448783243"
-            className="hidden items-center gap-2 text-sm font-semibold text-ink sm:inline-flex"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-ink"
           >
             <Phone className="h-4 w-4 text-brand-600" aria-hidden />
             (000) 000-000
@@ -144,18 +152,120 @@ function SiteHeader({ authedRole }: { authedRole: string | null }) {
             <>
               <Link
                 href="/login"
-                className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-gray-100 sm:inline-flex"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-gray-100"
               >
                 Sign in
               </Link>
               <a href="#tiers" className={CTA_PRIMARY}>
                 Become a Franchise
-              </a>you
+              </a>
             </>
           )}
         </div>
+
+        {/* Mobile / tablet hamburger (below lg) */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-ink transition-colors hover:bg-gray-100 lg:hidden"
+        >
+          {menuOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+        </button>
       </div>
     </header>
+
+      {/* Mobile / tablet menu — backdrop + left slide-in drawer (90% width).
+          Rendered OUTSIDE <header> because the header's backdrop-blur would
+          otherwise become the containing block for these fixed elements. */}
+      <div
+        onClick={() => setMenuOpen(false)}
+        aria-hidden
+        className={`fixed inset-0 z-[55] bg-black/30 transition-opacity duration-300 lg:hidden ${
+          menuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className={`fixed inset-y-0 left-0 z-[60] flex w-[90%] flex-col bg-white shadow-xl transition-transform duration-300 lg:hidden ${
+          menuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
+          <Link
+            href="/"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink"
+          >
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-600 text-white">
+              <Network className="h-4 w-4" aria-hidden />
+            </span>
+            EHB<span className="text-brand-600">Franchises</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+            className="grid h-10 w-10 place-items-center rounded-lg text-ink transition-colors hover:bg-gray-100"
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+        <div className="flex-1 space-y-1 overflow-y-auto px-5 py-4">
+          <nav className="flex flex-col" aria-label="Mobile">
+            {nav.map((n) => (
+              <a
+                key={n.href}
+                href={n.href}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-2 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                {n.label}
+              </a>
+            ))}
+          </nav>
+          <div className="flex flex-col gap-2 border-t border-gray-100 pt-3">
+            <a
+              href="tel:+18448783243"
+              onClick={() => setMenuOpen(false)}
+              className="inline-flex items-center gap-2 px-2 py-1 text-sm font-semibold text-ink"
+            >
+              <Phone className="h-4 w-4 text-brand-600" aria-hidden />
+              (000) 000-000
+            </a>
+            {authedRole ? (
+              <Link
+                href={`/${authedRole}`}
+                onClick={() => setMenuOpen(false)}
+                className={`${CTA_PRIMARY} w-full`}
+              >
+                My dashboard
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-full px-4 py-2.5 text-center text-sm font-semibold text-ink ring-1 ring-inset ring-gray-200 transition-colors hover:bg-gray-50"
+                >
+                  Sign in
+                </Link>
+                <a
+                  href="#tiers"
+                  onClick={() => setMenuOpen(false)}
+                  className={`${CTA_PRIMARY} w-full`}
+                >
+                  Become a Franchise
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -700,11 +810,13 @@ function LiveNetwork({
   pendingIds,
   isLoading,
   isError,
+  onRetry,
 }: {
   data: ReturnType<typeof useGetCatalogQuery>['data'];
   pendingIds: Set<string>;
   isLoading: boolean;
   isError: boolean;
+  onRetry: () => void;
 }) {
   return (
     <section id="network" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
@@ -738,9 +850,10 @@ function LiveNetwork({
           </div>
         )}
         {isError && (
-          <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-6 text-sm text-red-700">
-            Could not load the catalog. Is the franchises API running on port 3010?
-          </div>
+          <ErrorState
+            message="Could not load the network right now. Please try again."
+            onRetry={onRetry}
+          />
         )}
 
         {data && (

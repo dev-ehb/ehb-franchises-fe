@@ -17,17 +17,20 @@ import {
   UserCheck,
   Sparkles,
   CheckCircle2,
+  Menu,
+  X,
 } from 'lucide-react';
 import { useGetCatalogDetailQuery } from '@/lib/store/api/catalog.api';
 import { useSubmitPurchaseRequestMutation } from '@/lib/store/api/purchase-requests.api';
 import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/territory-map';
 import { useAppSelector } from '@/lib/store/hooks';
 import { getLevelLabel, getStatusColor, formatDate, countryName } from '@/lib/utils';
+import { ErrorState } from '@/components/ui/error-state';
 import type { Franchise, FranchiseLevel } from '@/types/franchises.types';
 
 export default function PublicFranchiseDetailPage() {
   const params = useParams<{ id: string }>();
-  const { data, isLoading, isError } = useGetCatalogDetailQuery(params.id);
+  const { data, isLoading, isError, refetch } = useGetCatalogDetailQuery(params.id);
   const auth = useAppSelector((s) => s.auth);
 
   if (isLoading) {
@@ -45,8 +48,11 @@ export default function PublicFranchiseDetailPage() {
       <main className="min-h-dvh bg-white">
         <SiteHeader authedRole={auth.role} />
         <div className="mx-auto max-w-6xl px-5 py-16 text-center sm:px-8">
-          <p className="font-display text-lg font-bold text-ink">Franchise not found.</p>
-          <Link href="/" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline">
+          <ErrorState
+            message="We could not load this franchise. Please try again."
+            onRetry={refetch}
+          />
+          <Link href="/" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline">
             <ArrowLeft className="h-4 w-4" /> Back to the network
           </Link>
         </div>
@@ -304,7 +310,9 @@ const LEVEL_TONE: Record<FranchiseLevel, { wrap: string; bar: string; icon: Reac
 // ── pieces ────────────────────────────────────────────────────────────────────
 
 function SiteHeader({ authedRole }: { authedRole: string | null }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
+    <>
     <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
         <Link href="/" className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink">
@@ -313,8 +321,10 @@ function SiteHeader({ authedRole }: { authedRole: string | null }) {
           </span>
           EHB<span className="text-brand-600">Franchises</span>
         </Link>
-        <div className="flex items-center gap-2.5">
-          <Link href="/" className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-gray-100 sm:inline-flex">
+
+        {/* Desktop actions (lg and up) */}
+        <div className="hidden items-center gap-2.5 lg:flex">
+          <Link href="/" className="rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-gray-100">
             Browse network
           </Link>
           <Link
@@ -325,8 +335,76 @@ function SiteHeader({ authedRole }: { authedRole: string | null }) {
             {authedRole && <ArrowRight className="h-4 w-4" aria-hidden />}
           </Link>
         </div>
+
+        {/* Mobile / tablet hamburger (below lg) */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-ink transition-colors hover:bg-gray-100 lg:hidden"
+        >
+          {menuOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+        </button>
       </div>
     </header>
+
+      {/* Mobile / tablet menu — backdrop + left slide-in drawer (90% width).
+          Rendered OUTSIDE <header> because the header's backdrop-blur would
+          otherwise become the containing block for these fixed elements. */}
+      <div
+        onClick={() => setMenuOpen(false)}
+        aria-hidden
+        className={`fixed inset-0 z-[1900] bg-black/30 transition-opacity duration-300 lg:hidden ${
+          menuOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className={`fixed inset-y-0 left-0 z-[2000] flex w-[90%] flex-col bg-white shadow-xl transition-transform duration-300 lg:hidden ${
+          menuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
+          <Link
+            href="/"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink"
+          >
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-600 text-white">
+              <Network className="h-4 w-4" aria-hidden />
+            </span>
+            EHB<span className="text-brand-600">Franchises</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+            className="grid h-10 w-10 place-items-center rounded-lg text-ink transition-colors hover:bg-gray-100"
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+        <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-5 py-4">
+          <Link
+            href="/"
+            onClick={() => setMenuOpen(false)}
+            className="rounded-full px-4 py-2.5 text-center text-sm font-semibold text-ink ring-1 ring-inset ring-gray-200 transition-colors hover:bg-gray-50"
+          >
+            Browse network
+          </Link>
+          <Link
+            href={authedRole ? `/${authedRole}` : '/login'}
+            onClick={() => setMenuOpen(false)}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-brand-700"
+          >
+            {authedRole ? 'My dashboard' : 'Sign in'}
+            {authedRole && <ArrowRight className="h-4 w-4" aria-hidden />}
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -631,7 +709,8 @@ function StoreTable({
 }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-soft">
-      <table className="w-full text-sm">
+      {/* Desktop table (lg and up) */}
+      <table className="hidden w-full text-sm lg:table">
         <thead className="border-b border-gray-100 bg-cream text-left text-xs uppercase tracking-wide text-gray-500">
           <tr>
             <th className="px-4 py-3 font-semibold">Store</th>
@@ -663,6 +742,33 @@ function StoreTable({
           ))}
         </tbody>
       </table>
+
+      {/* Mobile / tablet stacked cards (below lg) — same data, no horizontal scroll */}
+      <ul className="divide-y divide-gray-50 lg:hidden">
+        {stores.map((s) => (
+          <li key={s.id} className="p-4">
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                <Store className="h-3.5 w-3.5" aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-ink">{s.store_name ?? 'Unnamed store'}</div>
+                <div className="font-mono text-[11px] text-gray-400">{s.store_id}</div>
+                <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                  <dt className="text-gray-400">Sub franchise</dt>
+                  <dd className="text-gray-600">
+                    {franchiseLookup.get(s.franchise_id) ?? s.franchise_id.slice(-6)}
+                  </dd>
+                  <dt className="text-gray-400">Lat, Lng</dt>
+                  <dd className="font-mono text-gray-600">
+                    {s.store_location.coordinates[1].toFixed(4)}, {s.store_location.coordinates[0].toFixed(4)}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

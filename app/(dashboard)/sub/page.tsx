@@ -7,6 +7,8 @@ import {
   useRenameMyDisplayNameMutation,
 } from '@/lib/store/api/franchises.api';
 import { TerritoryMap, type MapMarker } from '@/components/map/territory-map';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import {
   ComplianceChecklist,
@@ -22,16 +24,11 @@ import { formatDate, getStatusColor } from '@/lib/utils';
  *   compliance checklist derived from territory + capacity state.
  */
 export default function SubDashboardPage() {
-  const { data, isLoading, isError, error } = useGetSubDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetSubDashboardQuery();
 
-  if (isLoading) return <div className="skeleton h-96 w-full" />;
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load your Sub dashboard.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load your Sub dashboard." />;
   }
 
   const { franchise, stores, kpis } = data;
@@ -129,34 +126,57 @@ export default function SubDashboardPage() {
             No stores yet. New GoSellr sellers in your territory show up here automatically.
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
-              <tr>
-                <th className="px-4 py-2 font-medium">Store</th>
-                <th className="px-4 py-2 font-medium">Source</th>
-                <th className="px-4 py-2 font-medium">Lat, Lng</th>
-                <th className="px-4 py-2 font-medium">Linked</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stores.map((s) => (
-                <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
-                  <td className="px-4 py-2">
-                    <div className="text-sm font-medium text-gray-800">
-                      {s.store_name ?? 'Unnamed store'}
-                    </div>
-                    <div className="font-mono text-[11px] text-gray-400">{s.store_id}</div>
-                  </td>
-                  <td className="px-4 py-2 text-gray-600">{s.source_platform}</td>
-                  <td className="px-4 py-2 text-gray-600">
-                    {s.store_location.coordinates[1].toFixed(4)},{' '}
-                    {s.store_location.coordinates[0].toFixed(4)}
-                  </td>
-                  <td className="px-4 py-2 text-gray-500">{formatDate(s.created_at)}</td>
+          <>
+            {/* Desktop table (lg and up) */}
+            <table className="hidden w-full text-sm lg:table">
+              <thead className="border-b border-gray-100 bg-gray-50 text-left text-gray-500">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Store</th>
+                  <th className="px-4 py-2 font-medium">Source</th>
+                  <th className="px-4 py-2 font-medium">Lat, Lng</th>
+                  <th className="px-4 py-2 font-medium">Linked</th>
                 </tr>
+              </thead>
+              <tbody>
+                {stores.map((s) => (
+                  <tr key={s.id} className="border-b border-gray-100 last:border-0 align-top">
+                    <td className="px-4 py-2">
+                      <div className="text-sm font-medium text-gray-800">
+                        {s.store_name ?? 'Unnamed store'}
+                      </div>
+                      <div className="font-mono text-[11px] text-gray-400">{s.store_id}</div>
+                    </td>
+                    <td className="px-4 py-2 text-gray-600">{s.source_platform}</td>
+                    <td className="px-4 py-2 text-gray-600">
+                      {s.store_location.coordinates[1].toFixed(4)},{' '}
+                      {s.store_location.coordinates[0].toFixed(4)}
+                    </td>
+                    <td className="px-4 py-2 text-gray-500">{formatDate(s.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Mobile / tablet stacked cards (below lg) — same data, no clipping */}
+            <ul className="divide-y divide-gray-100 lg:hidden">
+              {stores.map((s) => (
+                <li key={s.id} className="px-4 py-3">
+                  <div className="text-sm font-medium text-gray-800">{s.store_name ?? 'Unnamed store'}</div>
+                  <div className="font-mono text-[11px] text-gray-400">{s.store_id}</div>
+                  <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                    <dt className="text-gray-400">Source</dt>
+                    <dd className="text-gray-600">{s.source_platform}</dd>
+                    <dt className="text-gray-400">Lat, Lng</dt>
+                    <dd className="text-gray-600">
+                      {s.store_location.coordinates[1].toFixed(4)}, {s.store_location.coordinates[0].toFixed(4)}
+                    </dd>
+                    <dt className="text-gray-400">Linked</dt>
+                    <dd className="text-gray-500">{formatDate(s.created_at)}</dd>
+                  </dl>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </>
         )}
       </div>
     </div>

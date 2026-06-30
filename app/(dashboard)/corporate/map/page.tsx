@@ -2,6 +2,8 @@
 
 import { MapPin } from 'lucide-react';
 import { useGetCorporateDashboardQuery } from '@/lib/store/api/franchises.api';
+import { ErrorState } from '@/components/ui/error-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/territory-map';
 
 /**
@@ -13,16 +15,11 @@ import { TerritoryMap, type MapCircle, type MapMarker } from '@/components/map/t
  * conflicts here.
  */
 export default function CorporateRegionalMapPage() {
-  const { data, isLoading, isError, error } = useGetCorporateDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetCorporateDashboardQuery();
 
-  if (isLoading) return <div className="skeleton h-[32rem] w-full" />;
+  if (isLoading) return <Skeleton className="h-[32rem] w-full" />;
   if (isError || !data) {
-    return (
-      <p className="text-sm text-red-600">
-        {((error as { data?: { message?: string } } | undefined)?.data?.message) ??
-          'Could not load the regional map.'}
-      </p>
-    );
+    return <ErrorState onRetry={refetch} message="Could not load the regional map." />;
   }
 
   const { franchise, child_masters, grandchild_subs, kpis } = data;
